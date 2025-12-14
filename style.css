@@ -1,70 +1,170 @@
-/* =================================================
-   🔥 星期 / 日期 與 照片格「同一欄位對齊」
-================================================= */
+/* =========================
+   week.html 週曆相片紀錄（正確對應 week.js 結構）
+   - week-grid 裡是 week-row
+   - week-row 裡是 8 個 week-cell
+========================= */
 
-/* week-grid 本身已是主 Grid，不動它 */
-
-/* 星期＋日期那一排：強制變成「完整一格卡片」 */
-.week-grid .day-head,
-.week-grid .day-header,
-.week-grid .day {
-  height: 72px;                     /* 固定高度，對齊下面視覺 */
-  border-radius: 16px;
-  background: rgba(255,255,255,0.75);
-  border: 1px solid var(--border-soft);
-
-  display: grid;
-  place-items: center;              /* 垂直＋水平置中 */
-  text-align: center;
-
-  padding: 8px 6px;
-  box-sizing: border-box;
+/* 上面工具列（維持你原本） */
+.week-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
-/* 星期文字 */
-.week-grid .day-head .weekday,
-.week-grid .day-header .weekday,
-.week-grid .day .weekday {
+.week-title {
   font-weight: 800;
   font-size: 14px;
-  line-height: 1.2;
 }
 
-/* 日期 */
-.week-grid .day-head small,
-.week-grid .day-header small,
-.week-grid .day small,
-.week-grid .day-date {
-  margin-top: 4px;
+.week-wrap {
+  overflow: auto;
+}
+
+/* ✅ 灰色大底板（你圖那種） */
+.week-grid {
+  padding: 22px;
+  border-radius: 26px;
+  background: rgba(210, 210, 210, 0.92);
+  border: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 18px 36px rgba(0,0,0,0.10);
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* 每一列的間距 */
+  min-width: 1100px;
+}
+
+/* 每一列：固定 8 欄（項目 + 7 天），這樣表頭一定會對齊照片 */
+.week-row {
+  display: grid;
+  grid-template-columns: 74px repeat(7, minmax(120px, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+/* 所有格子基礎：先清乾淨 */
+.week-cell {
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* ✅ 表頭那排：星期/日期白色小框（對齊每個照片欄） */
+.week-header .week-header-cell {
+  height: 44px;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+
+  display: grid;
+  place-items: center;
+  text-align: center;
+
+  font-weight: 800;
+  color: #222;
+  padding: 6px 8px;
+}
+
+/* 表頭「項目」那格也做成同款白框 */
+.week-header .week-header-cell:first-child {
+  font-weight: 800;
+}
+
+/* 表頭裡的日期 small（你 JS 用 <span class="small">） */
+.week-header .week-header-cell .small {
+  display: block;
+  margin-top: 2px;
   font-size: 12px;
   opacity: 0.7;
+  font-weight: 650;
+  line-height: 1.1;
 }
 
-/* 左上角空白（對齊「早/中/晚」那一格） */
-.week-grid .corner,
-.week-grid .empty-head {
-  height: 72px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.75);
-  border: 1px solid var(--border-soft);
+/* ✅ 左側列名（早餐/午餐/晚餐/點心…）白色直框 */
+.week-title-cell {
+  height: 138px;
+  background: rgba(255,255,255,0.95);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 10px 8px;
+
+  color: #222;
 }
 
-/* 左側列標（早/中/晚）高度對齊照片格 */
-.week-grid .row-head,
-.week-grid .row-label {
-  height: 128px;                    /* 跟照片格一樣 */
+/* 列標題文字置中（你要全部置中） */
+.week-title-cell .row-title {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+/* ✅ 照片格：固定尺寸、每格對齊 */
+.photo-cell {
+  height: 138px;
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+
+  /* 空格也要置中 + 不要把格子撐爆 */
   display: grid;
   place-items: center;
   text-align: center;
 }
 
-/* 每個照片格（再次保險對齊） */
-.week-grid .cell,
-.week-grid .slot,
-.week-grid .dropzone,
-.week-grid .photo-cell {
-  height: 128px;
-  min-height: 128px;
-  display: grid;
-  place-items: center;
+/* 空格的「+」看起來像你圖那種 */
+.photo-cell:not(:has(img)) {
+  background: rgba(255,255,255,0.15);
+  border: 1px dashed rgba(0,0,0,0.18);
+}
+
+/* 你的 JS 已經把 img 設 width/height/object-fit 了，
+   這裡只補：不要圓角（你圖照片看起來是直角貼齊） */
+.photo-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0 !important;
+  display: block;
+}
+
+/* 來源角標 LOG/自訂：你 JS 用 inline style，這裡補穩定顯示層級 */
+.photo-cell > div {
+  z-index: 2;
+}
+
+/* 讓 ✕ 按鈕也在最上層 */
+.photo-cell button {
+  z-index: 3;
+}
+
+/* 小螢幕：允許橫向滑動，不要爆版 */
+@media (max-width: 900px) {
+  .week-grid {
+    min-width: 980px;
+  }
+}
+
+
+\\/* 照片跟卡片一樣圓角（關鍵） */
+.photo-cell {
+  border-radius: 16px;      /* 跟你現在卡片一致 */
+  overflow: hidden;         /* 超重要：裁掉圖片直角 */
+}
+
+/* 圖片本身也給同樣圓角，雙保險 */
+.photo-cell img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 16px;
+  display: block;
 }
