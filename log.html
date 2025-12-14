@@ -176,13 +176,20 @@
 
       msg.textContent = selectedPhoto ? "✅ 已新增紀錄（含照片）" : "✅ 已新增紀錄";
 
+      // 清空欄位
       food.value = "";
       cal.value = "";
       selectedPhoto = null;
       photoInput.value = "";
 
-      // 新增後：更新該日期狀態
+      // 更新狀態（可留著，避免跳轉前畫面沒更新）
       renderStatusBySelectedDate();
+
+      // ✅ 新增完直接跳到「今日統計與建議」
+      // 如果你想讓訊息顯示一下再跳，可把 200 改成 600
+      setTimeout(() => {
+        location.href = "stats.html";
+      }, 200);
     });
   </script>
 </body>
