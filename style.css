@@ -51,7 +51,6 @@ body {
   border-bottom: 1px solid rgba(77, 57, 0, 0.15);
 }
 
-
 h1 {
   margin: 0;
   font-size: 22px;
@@ -340,6 +339,39 @@ a.link {
   border-radius: 999px;
   width: 28px;
   height: 28px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.85);
+  color: #4d3900;
+  font-weight: 900;
+}
+
+/* ===== 週曆：可自訂列標題/刪除列 ===== */
+.week-side-editable {
+  position: relative;
+  padding: 10px;
+}
+
+.week-row-title {
+  width: 100%;
+  outline: none;
+  text-align: center;
+  font-weight: 900;
+  font-size: 16px;
+}
+
+.week-row-title:focus {
+  box-shadow: inset 0 0 0 2px rgba(77,57,0,0.25);
+  border-radius: 10px;
+}
+
+.week-row-del {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border: none;
+  border-radius: 999px;
+  width: 26px;
+  height: 26px;
   cursor: pointer;
   background: rgba(255,255,255,0.85);
   color: #4d3900;
