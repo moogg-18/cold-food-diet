@@ -100,6 +100,71 @@
     };
   }
 
+  /* ========= 新增：每日建議熱量（TDEE） ========= */
+  function getDailyCalorieLimit() {
+    const p = loadProfile();
+
+    // 兼容不同欄位名稱（你 profile 用哪個都可以）
+    const age = Number(p.age ?? p.Age ?? p.years ?? p.year) || 20;
+
+    // sex/gender 兼容：male/female、男/女、M/F
+    const rawSex = (p.sex ?? p.gender ?? p.Gender ?? "female").toString().toLowerCase();
+    const sex =
+      rawSex.includes("男") || rawSex === "m" || rawSex.includes("male")
+        ? "male"
+        : "female";
+
+    const height = Number(p.height ?? p.Height ?? p.h) || 0; // cm
+    const weight = Number(p.weight ?? p.Weight ?? p.w) || 0; // kg
+
+    // 資料不足就回 null（前端顯示：請先填個人設定）
+    if (!height || !weight) return null;
+
+    // BMR: Mifflin-St Jeor
+    const bmr =
+      sex === "male"
+        ? 10 * weight + 6.25 * height - 5 * age + 5
+        : 10 * weight + 6.25 * height - 5 * age - 161;
+
+    // 運動量係數（你前面有：每天 / 一周3~5次 / 一周0~2次）
+    const activity = (p.activity ?? p.exercise ?? p.workout ?? "一周0~2次").toString();
+    let factor = 1.2;  // 少（0–2次/週）
+    if (activity.includes("每天") || activity.includes("daily")) factor = 1.75;
+    else if (activity.includes("3") || activity.includes("5")) factor = 1.55;
+
+    let tdee = bmr * factor;
+
+    // 目標調整（維持/減脂/增肌）
+    const goal = (p.goal ?? p.target ?? "維持").toString();
+    if (goal.includes("減") || goal.includes("減脂") || goal.toLowerCase().includes("cut")) tdee -= 300;
+    if (goal.includes("增") || goal.includes("增肌") || goal.toLowerCase().includes("bulk")) tdee += 300;
+
+    return Math.round(tdee);
+  }
+
+  /* ========= 新增：今日狀態（含超標資訊） ========= */
+  function getTodayStatus() {
+    const sum = getTodaySummary();       // { total, coldCount, tip, logs }
+    const limit = getDailyCalorieLimit(); // number | null
+
+    if (!limit) {
+      return {
+        ...sum,
+        limit: null,
+        over: false,
+        overBy: 0
+      };
+    }
+
+    const overBy = Math.max(0, sum.total - limit);
+    return {
+      ...sum,
+      limit,
+      over: overBy > 0,
+      overBy
+    };
+  }
+
   /* ========= 對外 API ========= */
   window.App = {
     // logs
@@ -108,6 +173,8 @@
 
     // summary
     getTodaySummary,
+    getTodayStatus,          // ✅ 新增
+    getDailyCalorieLimit,    // ✅ 新增
 
     // profile
     loadProfile,
