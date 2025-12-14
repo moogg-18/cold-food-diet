@@ -413,3 +413,75 @@ a.link {
     min-width: 880px;
   }
 }
+
+/* =================================================
+   🔥 星期 / 日期 與 照片格「同一欄位對齊」
+================================================= */
+
+/* week-grid 本身已是主 Grid，不動它 */
+
+/* 星期＋日期那一排：強制變成「完整一格卡片」 */
+.week-grid .day-head,
+.week-grid .day-header,
+.week-grid .day {
+  height: 72px;                     /* 固定高度，對齊下面視覺 */
+  border-radius: 16px;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid var(--border-soft);
+
+  display: grid;
+  place-items: center;              /* 垂直＋水平置中 */
+  text-align: center;
+
+  padding: 8px 6px;
+  box-sizing: border-box;
+}
+
+/* 星期文字 */
+.week-grid .day-head .weekday,
+.week-grid .day-header .weekday,
+.week-grid .day .weekday {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+/* 日期 */
+.week-grid .day-head small,
+.week-grid .day-header small,
+.week-grid .day small,
+.week-grid .day-date {
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* 左上角空白（對齊「早/中/晚」那一格） */
+.week-grid .corner,
+.week-grid .empty-head {
+  height: 72px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.75);
+  border: 1px solid var(--border-soft);
+}
+
+/* 左側列標（早/中/晚）高度對齊照片格 */
+.week-grid .row-head,
+.week-grid .row-label {
+  height: 128px;                    /* 跟照片格一樣 */
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+/* 每個照片格（再次保險對齊） */
+.week-grid .cell,
+.week-grid .slot,
+.week-grid .dropzone,
+.week-grid .photo-cell {
+  height: 128px;
+  min-height: 128px;
+  display: grid;
+  place-items: center;
+}
+
