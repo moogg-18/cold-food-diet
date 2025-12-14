@@ -73,29 +73,6 @@
       <p class="note" id="msg"></p>
     </section>
 
-    <!-- ✅ 新增：今日食物攝取細項（表格） -->
-    <section class="panel food-detail-panel">
-      <h2>今日食物攝取細項</h2>
-
-      <div class="table-wrapper">
-        <table class="food-table">
-          <thead>
-            <tr>
-              <th>餐別</th>
-              <th>食物名稱</th>
-              <th>熱量 (kcal)</th>
-              <th>是否為冷性食物</th>
-            </tr>
-          </thead>
-          <tbody id="foodTableBody">
-            <tr class="empty">
-              <td colspan="4">尚未新增任何食物紀錄</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
     <section class="panel">
       <h2>快捷入口</h2>
       <a class="card" href="stats.html">📊 看今日統計與建議</a>
@@ -121,8 +98,6 @@
     const btnReset = document.getElementById("btnReset");
     const btnPhoto = document.getElementById("btnPhoto");
     const photoInput = document.getElementById("photoInput");
-
-    const foodTableBody = document.getElementById("foodTableBody");
 
     let selectedPhoto = null;
 
@@ -157,72 +132,11 @@
       }
     }
 
-    // ====== ✅ 今日食物細項表格渲染（保底版） ======
-    function getLogsByDateSafe(d) {
-      // 1) 若 app.js 有提供
-      if (window.App && typeof window.App.getLogsByDate === "function") {
-        return window.App.getLogsByDate(d) || [];
-      }
-
-      // 2) 沒有就從 localStorage 常見 key 嘗試
-      const tryKeys = ["logs", "foodLogs", "mealLogs", "dietLogs"];
-      for (const k of tryKeys) {
-        const raw = localStorage.getItem(k);
-        if (!raw) continue;
-
-        try {
-          const arr = JSON.parse(raw);
-          if (Array.isArray(arr)) {
-            return arr.filter(x => (x.date || x.d || x.day) === d);
-          }
-        } catch (_) {}
-      }
-      return [];
-    }
-
-    function renderFoodTableBySelectedDate() {
-      const d = dateEl.value || window.App.todayISO();
-      const logs = getLogsByDateSafe(d);
-
-      if (!logs || logs.length === 0) {
-        foodTableBody.innerHTML = `
-          <tr class="empty">
-            <td colspan="4">尚未新增任何食物紀錄</td>
-          </tr>`;
-        return;
-      }
-
-      foodTableBody.innerHTML = logs.map(item => {
-        const mealText = item.meal || item.type || "—";
-        const foodText = item.food || item.name || "—";
-        const kcalText = item.cal || item.kcal || item.calories || "—";
-
-        // 冷性欄位：如果資料本身有 isCold 就用；沒有就顯示未判定
-        const coldText =
-          (item.isCold === true) ? "是" :
-          (item.isCold === false) ? "否" :
-          "未判定";
-
-        return `
-          <tr>
-            <td>${mealText}</td>
-            <td>${foodText}</td>
-            <td>${kcalText}</td>
-            <td>${coldText}</td>
-          </tr>
-        `;
-      }).join("");
-    }
-
     // 初次渲染
     renderStatusBySelectedDate();
-    renderFoodTableBySelectedDate();
 
-    // ✅ 日期改變就更新：狀態 + 表格
-    dateEl.addEventListener("change", () => {
-      renderStatusBySelectedDate();
-      renderFoodTableBySelectedDate();
-    });
+    // ✅ 日期改變就更新上方狀態
+    dateEl.addEventListener("change", renderStatusBySelectedDate);
 
     // 新增照片
     btnPhoto.addEventListener("click", () => photoInput.click());
@@ -267,9 +181,8 @@
       selectedPhoto = null;
       photoInput.value = "";
 
-      // 新增後：更新該日期狀態 + 表格
+      // 新增後：更新該日期狀態
       renderStatusBySelectedDate();
-      renderFoodTableBySelectedDate();
     });
   </script>
 </body>
