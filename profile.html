@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>個人設定</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=120" />
 </head>
 <body>
   <header class="topbar">
@@ -61,20 +61,19 @@
       <p class="note" id="msg"></p>
     </section>
 
-  <section class="panel">
-  <h2>系統說明</h2>
-  <ul class="list">
-    <li>本系統為一個以「飲食紀錄 × 冷性食物提醒」為核心的健康管理網站。</li>
-    <li>使用者可每日記錄三餐內容，系統會自動統計熱量並辨識是否為冷性食物。</li>
-    <li>透過簡單的視覺化呈現，協助使用者快速了解當日飲食狀況與冷性食物攝取比例。</li>
-    <li>系統亦提供均衡飲食建議，提醒使用者補充蔬菜、蛋白質或調整飲食結構。</li>
-    <li>本網站為示範型 Web-based 系統，資料僅儲存在使用者裝置中，無需註冊即可使用。</li>
-  </ul>
-</section>
-
-
+    <section class="panel">
+      <h2>系統說明</h2>
+      <ul class="list">
+        <li>本系統為一個以「飲食紀錄 × 冷性食物提醒」為核心的健康管理網站。</li>
+        <li>使用者可每日記錄三餐內容，系統會自動統計熱量並辨識是否為冷性食物。</li>
+        <li>系統會依據個人基本資料估算每日建議攝取熱量，並於記錄時即時提醒。</li>
+        <li>即使攝取超標，系統仍允許新增紀錄，避免過度限制造成壓力。</li>
+        <li>本網站為示範型 Web-based 系統，資料僅儲存在使用者裝置中，無需註冊即可使用。</li>
+      </ul>
+    </section>
   </main>
 
+  <!-- 一定要先載入 app.js -->
   <script src="app.js"></script>
   <script>
     const age = document.getElementById("age");
@@ -85,14 +84,14 @@
     const activity = document.getElementById("activity");
     const msg = document.getElementById("msg");
 
-    // 先讀取已存資料
-    const p = JSON.parse(localStorage.getItem("diet_profile_v1") || "{}");
-    age.value = p.age || "";
-    sex.value = p.sex || "female";
-    height.value = p.height || "";
-    weight.value = p.weight || "";
-    goal.value = p.goal || "maintain";
-    activity.value = p.activity || "3-5";
+    // ✅ 使用 app.js 的統一讀取方法
+    const p = window.App.loadProfile();
+    age.value = p.age ?? "";
+    sex.value = p.sex ?? "female";
+    height.value = p.height ?? "";
+    weight.value = p.weight ?? "";
+    goal.value = p.goal ?? "maintain";
+    activity.value = p.activity ?? "3-5";
 
     document.getElementById("btnSave").addEventListener("click", () => {
       const profile = {
@@ -103,8 +102,12 @@
         goal: goal.value,
         activity: activity.value
       };
-      localStorage.setItem("diet_profile_v1", JSON.stringify(profile));
+
+      // ✅ 統一由 app.js 管理 LocalStorage
+      window.App.saveProfile(profile);
+
       msg.textContent = "✅ 已儲存個人設定";
+      msg.style.fontWeight = "700";
     });
   </script>
 </body>
