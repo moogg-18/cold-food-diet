@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>冷性食物 × 熱量紀錄</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>冷性食物 × 熱量紀錄</h1>
+    <p class="sub">每日三餐記錄｜冷性食物提醒｜均衡飲食建議</p>
+  </header>
+
+  <nav class="nav">
+    <a class="card" href="log.html">🍱 新增三餐紀錄</a>
+    <a class="card" href="stats.html">📊 今日統計與建議</a>
+    <a class="card" href="profile.html">👤 個人設定</a>
+  </nav>
+
+  <main class="container">
+    <section class="panel">
+      <h2>今天狀態</h2>
+      <div class="grid">
+        <div class="metric">
+          <div class="label">今日總熱量</div>
+          <div class="value" id="todayCalories">0</div>
+          <div class="hint">kcal</div>
+        </div>
+        <div class="metric">
+          <div class="label">冷性食物次數</div>
+          <div class="value" id="todayColdCount">0</div>
+          <div class="hint">次</div>
+        </div>
+      </div>
+      <p class="note" id="todayTip">先去「新增三餐紀錄」開始記錄吧！</p>
+    </section>
+
+    <section class="panel">
+      <h2>說明</h2>
+      <ul class="list">
+        <li>這是前端靜態網站：資料存在你的瀏覽器（LocalStorage）。</li>
+        <li>老師只能透過網址使用，無法修改你的程式碼。</li>
+        <li>之後想升級：可改成 Firebase 登入/雲端同步、或改成 React。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    // 首頁顯示今日摘要
+    const sum = window.App.getTodaySummary();
+    document.getElementById("todayCalories").textContent = sum.totalCalories;
+    document.getElementById("todayColdCount").textContent = sum.coldCount;
+    document.getElementById("todayTip").textContent = sum.tip;
+  </script>
+</body>
+</html>
