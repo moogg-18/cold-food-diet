@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>週曆相片紀錄</title>
-  <link rel="stylesheet" href="style.css?v=300" />
+  <link rel="stylesheet" href="style.css?v=200" />
 </head>
 
 <body>
@@ -20,13 +20,7 @@
         <div class="week-title" id="weekTitle">本週</div>
         <button class="btn secondary" id="nextWeek">下一週 →</button>
       </div>
-
-      <div class="week-toolbar" style="margin-top:10px;">
-        <button class="btn" id="addRow">➕ 新增一列</button>
-        <button class="btn secondary" id="resetRows">重設回預設列</button>
-      </div>
-
-      <p class="small">點格子即可上傳照片（會自動縮圖保存）。右上角 ✕ 可清除「週曆覆蓋圖」。列標題可點擊修改；若列名為「早餐/午餐/晚餐/點心」，會自動帶入飲食紀錄的照片。</p>
+      <p class="small">點格子即可上傳照片（會自動縮圖保存）。右上角 ✕ 可清除該格。</p>
     </section>
 
     <section class="panel week-wrap">
@@ -34,8 +28,9 @@
     </section>
   </main>
 
+  <!-- 隱藏的檔案選擇器（點格子會觸發） -->
   <input id="filePicker" type="file" accept="image/*" style="display:none" />
 
-  <script src="week.js?v=300"></script>
+  <script src="week.js?v=200"></script>
 </body>
 </html>
