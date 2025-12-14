@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>新增三餐紀錄</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>🍱 新增三餐紀錄</h1>
+    <p class="sub"><a class="link" href="index.html">← 回首頁</a></p>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>新增一筆紀錄</h2>
+
+      <label class="small">餐別</label>
+      <select id="meal" class="input">
+        <option value="早餐">早餐</option>
+        <option value="午餐">午餐</option>
+        <option value="晚餐">晚餐</option>
+        <option value="點心">點心</option>
+      </select>
+
+      <div style="height:10px"></div>
+
+      <label class="small">食物名稱</label>
+      <input id="food" class="input" placeholder="例：冰紅茶 / 沙拉 / 雞胸肉" />
+
+      <div style="height:10px"></div>
+
+      <label class="small">熱量（kcal）</label>
+      <input id="cal" class="input" type="number" placeholder="例：350" />
+
+      <div style="height:12px"></div>
+
+      <button class="btn" id="btnAdd">新增</button>
+      <p class="note" id="msg"></p>
+    </section>
+
+    <section class="panel">
+      <h2>快捷入口</h2>
+      <a class="card" href="stats.html">📊 看今日統計與建議</a>
+      <a class="card" href="profile.html">👤 個人設定</a>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const meal = document.getElementById("meal");
+    const food = document.getElementById("food");
+    const cal = document.getElementById("cal");
+    const msg = document.getElementById("msg");
+
+    document.getElementById("btnAdd").addEventListener("click", () => {
+      const f = food.value.trim();
+      const c = cal.value;
+
+      if (!f) { msg.textContent = "請輸入食物名稱"; return; }
+      if (!c) { msg.textContent = "請輸入熱量"; return; }
+
+      window.App.addLog(meal.value, f, c);
+
+      msg.textContent = "✅ 已新增紀錄";
+      food.value = "";
+      cal.value = "";
+    });
+  </script>
+</body>
+</html>
