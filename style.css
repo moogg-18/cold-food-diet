@@ -173,14 +173,12 @@ textarea {
   color: var(--text-color);
 }
 
-/* outline 按鈕（重新輸入 / 新增照片 / 刪除） */
 .btn.btn-outline {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255,255,255,0.85);
   color: var(--text-color);
   border: 1px solid var(--border-soft);
 }
 
-/* 表格內刪除按鈕 */
 .btn-del {
   padding: 8px 10px;
   font-size: 13px;
@@ -261,7 +259,7 @@ a.link {
 }
 
 /* =========================================================
-   week.html：上方工具列保持原狀（你說上面不要動）
+   week.html：上面工具列保持原狀（你要上面不動）
 ========================================================= */
 
 .week-toolbar {
@@ -277,25 +275,26 @@ a.link {
   font-size: 14px;
 }
 
+/* 讓表格可以橫向滑動（小螢幕不爆） */
 .week-wrap {
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* =========================================================
-   ✅ week.html：下面週曆表格「改回去」(像你第一張圖)
-   - 大底框卡片
-   - 格子卡片化、固定高度
-   - 星期/日期/列標/內容全部置中
-   - 食物名稱/熱量不再超出格子
+   ✅ week.html：下面週曆表格（回到你圖中的樣子）
+   這段「不靠 class 名字」也能對齊：
+   - 8 欄（左側列標 + 7 天）
+   - 第 1 排：星期/日期（含左上角空格）
+   - 後面每排：列標 + 7 格照片
 ========================================================= */
 
 .week-grid {
   display: grid;
   grid-template-columns: 64px repeat(7, minmax(140px, 1fr));
-  gap: 10px;
+  gap: 12px;
   min-width: 1100px;
 
-  /* 大底框感 */
   padding: 18px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.55);
@@ -303,73 +302,79 @@ a.link {
   box-shadow: 0 10px 24px rgba(0,0,0,0.08);
 }
 
-/* 表頭：Monday~Sunday 置中 + 小卡片 */
-.week-grid .day-head,
-.week-grid .day-header,
-.week-grid .day {
-  text-align: center;
-  border-radius: 14px;
-  padding: 10px 6px;
-  background: rgba(255,255,255,0.70);
+/* 先把 week-grid 內所有格子都統一成「卡片」基底 */
+.week-grid > * {
+  border-radius: 16px;
   border: 1px solid var(--border-soft);
-  font-weight: 800;
+  background: rgba(255,255,255,0.70);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
-/* 日期小字置中 */
-.week-grid .day-head small,
-.week-grid .day-header small,
-.week-grid .day small,
-.week-grid .day-date {
-  display: block;
-  text-align: center;
-  opacity: 0.75;
-  font-weight: 600;
+/* ===== 第 1 排（星期/日期），一排 8 格：1~8 ===== */
+
+/* 左上角空白格（對齊列標） */
+.week-grid > :nth-child(1) {
+  height: 72px;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.75);
 }
 
-/* 左側列標：早/中/晚/消夜… 置中卡片 */
-.week-grid .row-head,
-.week-grid .row-label {
-  width: 64px;
-  min-width: 64px;
+/* 星期/日期格：第 2~8 格，必須正對下面照片欄 */
+.week-grid > :nth-child(-n+8):not(:nth-child(1)) {
+  height: 72px;
+  padding: 8px 6px;
+
   display: grid;
   place-items: center;
   text-align: center;
-  border-radius: 14px;
+
+  font-weight: 800;
   background: rgba(255,255,255,0.75);
-  border: 1px solid var(--border-soft);
+}
+
+/* 星期那行如果是文字/元素，置中 */
+.week-grid > :nth-child(-n+8):not(:nth-child(1)) * {
+  text-align: center;
+}
+
+/* 日期（通常是 small 或第二行字）更小一點 */
+.week-grid > :nth-child(-n+8):not(:nth-child(1)) small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.72;
+  font-weight: 650;
+}
+
+/* ===== 左側列標：每排第 1 格（第 9,17,25...） ===== */
+.week-grid > :nth-child(8n+1):not(:nth-child(1)) {
+  height: 128px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+
+  background: rgba(255,255,255,0.78);
   font-weight: 900;
   letter-spacing: 2px;
 }
 
-/* 每個格子：卡片 + 固定高度 + 置中 */
-.week-grid .cell,
-.week-grid .slot,
-.week-grid .dropzone,
-.week-grid .photo-cell {
+/* ===== 照片格：不是表頭排，也不是左側列標 ===== */
+.week-grid > :not(:nth-child(-n+8)):not(:nth-child(8n+1)) {
   height: 128px;
-  min-height: 128px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.65);
-  border: 1px solid var(--border-soft);
-  overflow: hidden;
-
   display: grid;
   place-items: center;
   text-align: center;
-  position: relative;
+
+  background: rgba(255,255,255,0.65);
 }
 
-/* 格子內的 + / 上傳 置中 */
-.week-grid .cell *,
-.week-grid .slot *,
-.week-grid .dropzone *,
-.week-grid .photo-cell * {
-  text-align: center;
-}
-
-/* +號風格 */
+/* + 號（你圖中的樣子） */
 .week-grid .plus,
-.week-grid .add-icon {
+.week-grid .add,
+.week-grid .add-icon,
+.week-grid .icon-plus {
   font-size: 30px;
   font-weight: 900;
   line-height: 1;
@@ -384,7 +389,7 @@ a.link {
   opacity: 0.75;
 }
 
-/* 若格子裡有圖片：填滿且不變形太醜 */
+/* 圖片填滿卡片 */
 .week-grid img {
   width: 100%;
   height: 100%;
@@ -392,96 +397,29 @@ a.link {
   display: block;
 }
 
-/* 食物名稱/熱量區塊：不准爆框 */
+/* 食物名稱/熱量：不准爆框（你之前爆掉的就是這個） */
 .week-grid .food-meta,
 .week-grid .food-name,
 .week-grid .food-kcal,
-.week-grid .tag {
+.week-grid .tag,
+.week-grid .pill {
   max-width: 100%;
+  padding: 0 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 0 10px;
 }
 
-/* 手機：允許橫向捲動 */
+/* 如果你的食物名稱/熱量是 input */
+.week-grid input,
+.week-grid select,
+.week-grid textarea {
+  max-width: 100%;
+}
+
+/* 手機：允許橫滑 */
 @media (max-width: 900px) {
-  .week-wrap {
-    overflow-x: auto;
-  }
   .week-grid {
     min-width: 880px;
   }
 }
-
-/* =================================================
-   🔥 星期 / 日期 與 照片格「同一欄位對齊」
-================================================= */
-
-/* week-grid 本身已是主 Grid，不動它 */
-
-/* 星期＋日期那一排：強制變成「完整一格卡片」 */
-.week-grid .day-head,
-.week-grid .day-header,
-.week-grid .day {
-  height: 72px;                     /* 固定高度，對齊下面視覺 */
-  border-radius: 16px;
-  background: rgba(255,255,255,0.75);
-  border: 1px solid var(--border-soft);
-
-  display: grid;
-  place-items: center;              /* 垂直＋水平置中 */
-  text-align: center;
-
-  padding: 8px 6px;
-  box-sizing: border-box;
-}
-
-/* 星期文字 */
-.week-grid .day-head .weekday,
-.week-grid .day-header .weekday,
-.week-grid .day .weekday {
-  font-weight: 800;
-  font-size: 14px;
-  line-height: 1.2;
-}
-
-/* 日期 */
-.week-grid .day-head small,
-.week-grid .day-header small,
-.week-grid .day small,
-.week-grid .day-date {
-  margin-top: 4px;
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-/* 左上角空白（對齊「早/中/晚」那一格） */
-.week-grid .corner,
-.week-grid .empty-head {
-  height: 72px;
-  border-radius: 16px;
-  background: rgba(255,255,255,0.75);
-  border: 1px solid var(--border-soft);
-}
-
-/* 左側列標（早/中/晚）高度對齊照片格 */
-.week-grid .row-head,
-.week-grid .row-label {
-  height: 128px;                    /* 跟照片格一樣 */
-  display: grid;
-  place-items: center;
-  text-align: center;
-}
-
-/* 每個照片格（再次保險對齊） */
-.week-grid .cell,
-.week-grid .slot,
-.week-grid .dropzone,
-.week-grid .photo-cell {
-  height: 128px;
-  min-height: 128px;
-  display: grid;
-  place-items: center;
-}
-
