@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>新增三餐紀錄</title>
-  <link rel="stylesheet" href="style.css?v=131" />
+  <link rel="stylesheet" href="style.css?v=132" />
 </head>
 
 <body>
@@ -15,9 +15,8 @@
 
   <main class="container">
 
-    <!-- ✅ 每日建議熱量 + 今日已攝取 + 超標提醒 -->
     <section class="panel" id="caloriePanel">
-      <h2>今日熱量狀態</h2>
+      <h2 id="statusTitle">熱量狀態</h2>
 
       <div class="grid">
         <div class="metric">
@@ -27,17 +26,22 @@
         </div>
 
         <div class="metric">
-          <div class="label">今日已攝取</div>
-          <div class="value" id="todayTotal">0</div>
+          <div class="label">當日已攝取</div>
+          <div class="value" id="dayTotal">0</div>
           <div class="hint">kcal</div>
         </div>
       </div>
 
-      <p class="note" id="overWarn">請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。</p>
+      <p class="note" id="overWarn">請先到「個人設定」填寫資料，系統才能計算建議熱量。</p>
     </section>
 
     <section class="panel">
       <h2>新增一筆紀錄</h2>
+
+      <label class="small">日期</label>
+      <input id="date" class="input" type="date" />
+
+      <div style="height:10px"></div>
 
       <label class="small">餐別</label>
       <select id="meal" class="input">
@@ -59,21 +63,13 @@
 
       <div style="height:12px"></div>
 
-      <!-- ✅ 新增：三顆按鈕 -->
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn" id="btnAdd">新增</button>
+        <button class="btn" id="btnAdd" type="button">新增</button>
         <button class="btn btn-outline" id="btnReset" type="button">重新輸入</button>
         <button class="btn btn-outline" id="btnPhoto" type="button">新增照片</button>
       </div>
 
-      <!-- ✅ 隱藏的照片選擇器 -->
-      <input
-        type="file"
-        id="photoInput"
-        accept="image/*"
-        style="display:none"
-      />
-
+      <input type="file" id="photoInput" accept="image/*" style="display:none" />
       <p class="note" id="msg"></p>
     </section>
 
@@ -85,15 +81,17 @@
 
   </main>
 
-  <script src="app.js?v=131"></script>
+  <script src="app.js?v=132"></script>
   <script>
+    const dateEl = document.getElementById("date");
     const meal = document.getElementById("meal");
     const food = document.getElementById("food");
     const cal = document.getElementById("cal");
     const msg = document.getElementById("msg");
 
+    const statusTitle = document.getElementById("statusTitle");
     const dailyLimitEl = document.getElementById("dailyLimit");
-    const todayTotalEl = document.getElementById("todayTotal");
+    const dayTotalEl = document.getElementById("dayTotal");
     const overWarnEl = document.getElementById("overWarn");
 
     const btnAdd = document.getElementById("btnAdd");
@@ -101,13 +99,17 @@
     const btnPhoto = document.getElementById("btnPhoto");
     const photoInput = document.getElementById("photoInput");
 
-    // 目前選到的照片（base64）
     let selectedPhoto = null;
 
-    function renderCalorieStatus() {
-      const status = window.App.getTodayStatus();
+    // 預設日期 = 今天
+    dateEl.value = window.App.todayISO();
 
-      todayTotalEl.textContent = status.total;
+    function renderStatusBySelectedDate() {
+      const d = dateEl.value || window.App.todayISO();
+      const status = window.App.getStatusByDate(d);
+
+      statusTitle.textContent = `熱量狀態（${d}）`;
+      dayTotalEl.textContent = status.total;
 
       if (!status.limit) {
         dailyLimitEl.textContent = "—";
@@ -120,38 +122,38 @@
       dailyLimitEl.textContent = status.limit;
 
       if (status.over) {
-        overWarnEl.textContent = `⚠ 今日熱量已超過建議攝取量（+${status.overBy} kcal），仍可繼續新增紀錄。`;
+        overWarnEl.textContent = `⚠ ${d} 熱量已超過建議攝取量（+${status.overBy} kcal），仍可繼續新增紀錄。`;
         overWarnEl.style.color = "red";
         overWarnEl.style.fontWeight = "800";
       } else {
-        overWarnEl.textContent = "✔ 目前仍在建議攝取範圍內";
+        overWarnEl.textContent = `✔ ${d} 仍在建議攝取範圍內`;
         overWarnEl.style.color = "#7a8f4e";
         overWarnEl.style.fontWeight = "800";
       }
     }
 
-    // 進頁先渲染一次
-    renderCalorieStatus();
+    // 初次渲染
+    renderStatusBySelectedDate();
 
-    // ✅ 新增照片：點按鈕才打開檔案選擇
-    btnPhoto.addEventListener("click", () => {
-      photoInput.click();
-    });
+    // ✅ 日期改變就更新上方狀態
+    dateEl.addEventListener("change", renderStatusBySelectedDate);
 
-    // ✅ 選照片後：讀成 base64，暫存到 selectedPhoto
+    // 新增照片
+    btnPhoto.addEventListener("click", () => photoInput.click());
+
     photoInput.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
 
       const reader = new FileReader();
       reader.onload = () => {
-        selectedPhoto = reader.result; // base64 string
-        msg.textContent = "📸 已選擇照片（將於新增時一併儲存到週曆相片紀錄）";
+        selectedPhoto = reader.result;
+        msg.textContent = "📸 已選擇照片（將於新增時一併儲存）";
       };
       reader.readAsDataURL(file);
     });
 
-    // ✅ 重新輸入：清空欄位 + 清掉已選照片
+    // 重新輸入
     btnReset.addEventListener("click", () => {
       food.value = "";
       cal.value = "";
@@ -160,28 +162,27 @@
       msg.textContent = "🔄 已清空欄位";
     });
 
-    // ✅ 新增：仍可新增（就算超標也不擋）
+    // 新增
     btnAdd.addEventListener("click", () => {
+      const d = dateEl.value;
       const f = food.value.trim();
       const c = cal.value;
 
+      if (!d) { msg.textContent = "請選擇日期"; return; }
       if (!f) { msg.textContent = "請輸入食物名稱"; return; }
       if (!c) { msg.textContent = "請輸入熱量"; return; }
 
-      // ✅ 第4個參數：photo（base64）
-      window.App.addLog(meal.value, f, c, selectedPhoto);
+      window.App.addLog(meal.value, f, c, selectedPhoto, d);
 
-      msg.textContent = selectedPhoto
-        ? "✅ 已新增紀錄（含照片）"
-        : "✅ 已新增紀錄";
+      msg.textContent = selectedPhoto ? "✅ 已新增紀錄（含照片）" : "✅ 已新增紀錄";
 
       food.value = "";
       cal.value = "";
       selectedPhoto = null;
       photoInput.value = "";
 
-      // ✅ 新增後立刻更新今日熱量狀態
-      renderCalorieStatus();
+      // 新增後：更新該日期狀態
+      renderStatusBySelectedDate();
     });
   </script>
 </body>
