@@ -1,3 +1,8 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 /* ========= 主題設定 ========= */
 :root {
   --text-color: #4d3900;
@@ -378,4 +383,23 @@ a.link {
   background: rgba(255,255,255,0.85);
   color: #4d3900;
   font-weight: 900;
+}
+
+/* === 修正輸入框超出 panel 問題 === */
+.input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;   /* ✅ 關鍵 */
+}
+
+/* 若你有用到數字輸入框 */
+input[type="number"],
+input[type="text"],
+input[type="date"],
+input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
