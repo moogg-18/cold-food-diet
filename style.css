@@ -40,10 +40,17 @@ body {
 /* ========= 上方標題列 ========= */
 .topbar {
   padding: 22px 16px 12px;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(6px);
-  border-bottom: 1px solid var(--border-soft);
+
+  /* 白色實心背景 */
+  background-color: #ffffff;
+
+  /* 移除玻璃效果 */
+  backdrop-filter: none;
+
+  /* 底線可留可不留（留一點質感） */
+  border-bottom: 1px solid rgba(77, 57, 0, 0.15);
 }
+
 
 h1 {
   margin: 0;
@@ -229,4 +236,112 @@ a.link {
 .tip-ok {
   color: var(--warm-color);
   font-weight: 800;
+}
+
+/* ===== 週曆相片紀錄（week.html） ===== */
+.week-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.week-title {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.week-wrap {
+  overflow: auto; /* 小螢幕可橫向滑 */
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: 64px repeat(7, minmax(140px, 1fr));
+  gap: 10px;
+  min-width: 1100px; /* 讓電腦版像你圖那樣 */
+}
+
+.week-corner {
+  background: rgba(255,255,255,0.35);
+  border: 1px solid rgba(77,57,0,0.15);
+  border-radius: 14px;
+}
+
+.week-head {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(77,57,0,0.15);
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+}
+
+.week-day {
+  font-weight: 800;
+}
+
+.week-date {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.week-side {
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(77,57,0,0.15);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  height: 140px;
+}
+
+.week-cell {
+  position: relative;
+  height: 140px;
+  border-radius: 14px;
+  border: 1px solid rgba(77,57,0,0.15);
+  background: rgba(255,255,255,0.75);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.week-empty {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.week-plus {
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.week-empty-text {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.week-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.week-clear {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border: none;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.85);
+  color: #4d3900;
+  font-weight: 900;
 }
