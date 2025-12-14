@@ -1,12 +1,15 @@
-// week.js — 週曆相片紀錄（LocalStorage + 自動縮圖）
+// week.js — 週曆相片紀錄（可自訂列標題）LocalStorage + 自動縮圖
 (() => {
-  const LS_KEY = "diet_week_photos_v1";
-  const MEALS = [
-    { key: "breakfast", label: "早" },
-    { key: "lunch", label: "中" },
-    { key: "dinner", label: "晚" },
-    { key: "snack", label: "點" },
+  const LS_KEY_DATA = "diet_week_photos_v2";   // 照片資料（依週）
+  const LS_KEY_ROWS = "diet_week_rows_v2";     // 每週列設定（依週）
+
+  const DEFAULT_ROWS = [
+    { id: "breakfast", title: "早" },
+    { id: "lunch", title: "中" },
+    { id: "dinner", title: "晚" },
+    { id: "snack", title: "點心" },
   ];
+
   const DAYS = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
 
   const gridEl = document.getElementById("weekGrid");
@@ -16,12 +19,13 @@
   let currentMonday = getMonday(new Date());
   let pendingCellId = null;
 
-  function loadAll() {
-    try { return JSON.parse(localStorage.getItem(LS_KEY) || "{}"); }
-    catch { return {}; }
+  /* ========= storage helpers ========= */
+  function loadJSON(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); }
+    catch { return fallback; }
   }
-  function saveAll(data) {
-    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  function saveJSON(key, val) {
+    localStorage.setItem(key, JSON.stringify(val));
   }
 
   function fmtDate(d) {
@@ -54,45 +58,109 @@
     return Array.from({ length: 7 }, (_, i) => addDays(monday, i));
   }
 
+  /* ========= rows (custom) ========= */
+  function loadRowsForWeek(wk) {
+    const allRows = loadJSON(LS_KEY_ROWS, {});
+    if (!allRows[wk]) {
+      allRows[wk] = DEFAULT_ROWS;
+      saveJSON(LS_KEY_ROWS, allRows);
+    }
+    return allRows[wk];
+  }
+
+  function saveRowsForWeek(wk, rows) {
+    const allRows = loadJSON(LS_KEY_ROWS, {});
+    allRows[wk] = rows;
+    saveJSON(LS_KEY_ROWS, allRows);
+  }
+
+  function newRowId() {
+    // 簡單唯一 id
+    return "row_" + Math.random().toString(16).slice(2) + "_" + Date.now();
+  }
+
+  /* ========= data (photos) ========= */
+  function loadDataForWeek(wk) {
+    const all = loadJSON(LS_KEY_DATA, {});
+    return all[wk] || {};
+  }
+
+  function saveDataForWeek(wk, weekData) {
+    const all = loadJSON(LS_KEY_DATA, {});
+    all[wk] = weekData;
+    saveJSON(LS_KEY_DATA, all);
+  }
+
   function render() {
     const dates = getWeekDates(currentMonday);
-    const wkKey = weekKey(currentMonday);
-    const all = loadAll();
-    const weekData = all[wkKey] || {}; // { "YYYY-MM-DD_meal": {img, note} }
+    const wk = weekKey(currentMonday);
 
-    // 顯示標題
-    const start = fmtDate(dates[0]);
-    const end = fmtDate(dates[6]);
-    titleEl.textContent = `本週：${start} ～ ${end}`;
+    const rows = loadRowsForWeek(wk);
+    const weekData = loadDataForWeek(wk);
 
-    // 建表：左上角空白 + 7天標題列 + 4餐列
+    // 標題
+    titleEl.textContent = `本週：${fmtDate(dates[0])} ～ ${fmtDate(dates[6])}`;
+
+    // 清空
     gridEl.innerHTML = "";
 
-    // 左上角空白
+    // 左上角
     gridEl.appendChild(makeDiv("week-corner", ""));
 
     // 週標題列
     dates.forEach((d, i) => {
-      const dayTitle = document.createElement("div");
-      dayTitle.className = "week-head";
-      dayTitle.innerHTML = `<div class="week-day">${DAYS[i]}</div><div class="week-date">${fmtDate(d).slice(5)}</div>`;
-      gridEl.appendChild(dayTitle);
+      const head = document.createElement("div");
+      head.className = "week-head";
+      head.innerHTML = `<div class="week-day">${DAYS[i]}</div><div class="week-date">${fmtDate(d).slice(5)}</div>`;
+      gridEl.appendChild(head);
     });
 
-    // 餐別列 + 內容格
-    MEALS.forEach((meal) => {
-      // 左側餐別標籤
-      const label = makeDiv("week-side", meal.label);
-      gridEl.appendChild(label);
+    // 每一列：左側可編輯標題 + 7 個照片格
+    rows.forEach((row) => {
+      // 左側：列標題（可編輯）
+      const side = document.createElement("div");
+      side.className = "week-side week-side-editable";
+      side.innerHTML = `
+        <div class="week-row-title" contenteditable="true" spellcheck="false">${escapeHtml(row.title)}</div>
+        <button class="week-row-del" title="刪除此列">✕</button>
+      `;
 
-      // 7 天格子
+      // 編輯標題：失焦保存
+      const titleDiv = side.querySelector(".week-row-title");
+      titleDiv.addEventListener("blur", () => {
+        const newTitle = (titleDiv.textContent || "").trim() || "未命名";
+        row.title = newTitle;
+        saveRowsForWeek(wk, rows);
+      });
+
+      // 刪除列：同時刪掉該列所有照片
+      side.querySelector(".week-row-del").addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (!confirm("要刪除此列？（此列所有照片也會一起清除）")) return;
+
+        // 移除 row
+        const newRows = rows.filter(r => r.id !== row.id);
+        saveRowsForWeek(wk, newRows);
+
+        // 清除該 row 的所有 cell
+        Object.keys(weekData).forEach((k) => {
+          if (k.endsWith(`_${row.id}`)) delete weekData[k];
+        });
+        saveDataForWeek(wk, weekData);
+
+        render();
+      });
+
+      gridEl.appendChild(side);
+
+      // 7天照片格
       dates.forEach((d) => {
-        const id = `${fmtDate(d)}_${meal.key}`;
+        const cellId = `${fmtDate(d)}_${row.id}`;
         const cell = document.createElement("div");
         cell.className = "week-cell";
-        cell.dataset.cellId = id;
+        cell.dataset.cellId = cellId;
 
-        const data = weekData[id];
+        const data = weekData[cellId];
         if (data?.img) {
           cell.innerHTML = `
             <img class="week-img" src="${data.img}" alt="meal photo" />
@@ -109,21 +177,19 @@
 
         // 點格子上傳
         cell.addEventListener("click", (e) => {
-          // 點到清除按鈕就不要開上傳
           if (e.target && e.target.classList.contains("week-clear")) return;
-          pendingCellId = id;
+          pendingCellId = cellId;
           filePicker.value = "";
           filePicker.click();
         });
 
-        // 清除
+        // 清除照片
         const clearBtn = cell.querySelector(".week-clear");
         if (clearBtn) {
           clearBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            delete weekData[id];
-            all[wkKey] = weekData;
-            saveAll(all);
+            delete weekData[cellId];
+            saveDataForWeek(wk, weekData);
             render();
           });
         }
@@ -140,22 +206,28 @@
     return div;
   }
 
-  // 上傳後：縮圖壓縮 -> 存 LocalStorage
+  function escapeHtml(s) {
+    return String(s)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;");
+  }
+
+  // 上傳 → 壓縮 → 存
   filePicker.addEventListener("change", async () => {
     const file = filePicker.files?.[0];
     if (!file || !pendingCellId) return;
 
-    const imgDataUrl = await compressImageToDataUrl(file, 520, 0.8); // 最大邊520px，品質0.8
-    const wkKey = weekKey(currentMonday);
-    const all = loadAll();
-    const weekData = all[wkKey] || {};
+    const imgDataUrl = await compressImageToDataUrl(file, 520, 0.8);
+
+    const wk = weekKey(currentMonday);
+    const weekData = loadDataForWeek(wk);
 
     weekData[pendingCellId] = { img: imgDataUrl };
-    all[wkKey] = weekData;
 
     try {
-      saveAll(all);
-    } catch (err) {
+      saveDataForWeek(wk, weekData);
+    } catch {
       alert("儲存失敗：可能照片太多導致容量滿了。建議清除一些格子或上傳更小的照片。");
     }
 
@@ -181,7 +253,6 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, w, h);
 
-          // jpeg 比 png 省很多
           const dataUrl = canvas.toDataURL("image/jpeg", quality);
           resolve(dataUrl);
         };
@@ -199,6 +270,27 @@
 
   document.getElementById("nextWeek").addEventListener("click", () => {
     currentMonday = addDays(currentMonday, 7);
+    render();
+  });
+
+  // 新增列
+  document.getElementById("addRow").addEventListener("click", () => {
+    const wk = weekKey(currentMonday);
+    const rows = loadRowsForWeek(wk);
+
+    const title = prompt("輸入新列標題（例如：宵夜 / 飲水 / 運動）", "新列");
+    if (!title) return;
+
+    rows.push({ id: newRowId(), title: title.trim() || "未命名" });
+    saveRowsForWeek(wk, rows);
+    render();
+  });
+
+  // 重設列
+  document.getElementById("resetRows").addEventListener("click", () => {
+    const wk = weekKey(currentMonday);
+    if (!confirm("要重設回預設列嗎？（不會刪照片，但非預設列的照片可能不再顯示）")) return;
+    saveRowsForWeek(wk, DEFAULT_ROWS);
     render();
   });
 
