@@ -40,10 +40,15 @@ body {
 /* ========= 上方標題列 ========= */
 .topbar {
   padding: 22px 16px 12px;
-  background: transparent;   /* 完全透明 */
-  backdrop-filter: none;     /* 移除模糊 */
-  border-bottom: none;       /* 移除底線 */
+
+  /* 關鍵：背景完全不可見 */
+  background-color: rgba(255, 255, 255, 0); /* 透明度 0% */
+  
+  /* 確保沒有模糊或殘影 */
+  backdrop-filter: none;
+  border: none;
 }
+
 
 h1 {
   margin: 0;
