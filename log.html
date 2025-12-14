@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>新增三餐紀錄</title>
- <link rel="stylesheet" href="style.css?v=102" />
-
+  <link rel="stylesheet" href="style.css?v=130" />
 </head>
+
 <body>
   <header class="topbar">
     <h1>🍱 新增三餐紀錄</h1>
@@ -14,6 +14,28 @@
   </header>
 
   <main class="container">
+
+    <!-- ✅ 新增：每日建議熱量 + 今日已攝取 + 超標提醒 -->
+    <section class="panel" id="caloriePanel">
+      <h2>今日熱量狀態</h2>
+
+      <div class="grid">
+        <div class="metric">
+          <div class="label">建議攝取量</div>
+          <div class="value" id="dailyLimit">—</div>
+          <div class="hint">kcal</div>
+        </div>
+
+        <div class="metric">
+          <div class="label">今日已攝取</div>
+          <div class="value" id="todayTotal">0</div>
+          <div class="hint">kcal</div>
+        </div>
+      </div>
+
+      <p class="note" id="overWarn">請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。</p>
+    </section>
+
     <section class="panel">
       <h2>新增一筆紀錄</h2>
 
@@ -46,6 +68,7 @@
       <a class="card" href="stats.html">📊 看今日統計與建議</a>
       <a class="card" href="profile.html">👤 個人設定</a>
     </section>
+
   </main>
 
   <script src="app.js"></script>
@@ -55,6 +78,39 @@
     const cal = document.getElementById("cal");
     const msg = document.getElementById("msg");
 
+    const dailyLimitEl = document.getElementById("dailyLimit");
+    const todayTotalEl = document.getElementById("todayTotal");
+    const overWarnEl = document.getElementById("overWarn");
+
+    function renderCalorieStatus() {
+      const status = window.App.getTodayStatus();
+
+      todayTotalEl.textContent = status.total;
+
+      if (!status.limit) {
+        dailyLimitEl.textContent = "—";
+        overWarnEl.textContent = "請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。";
+        overWarnEl.style.color = "#4d3900";
+        overWarnEl.style.fontWeight = "600";
+        return;
+      }
+
+      dailyLimitEl.textContent = status.limit;
+
+      if (status.over) {
+        overWarnEl.textContent = `⚠ 今日熱量已超過建議攝取量（+${status.overBy} kcal），仍可繼續新增紀錄。`;
+        overWarnEl.style.color = "red";
+        overWarnEl.style.fontWeight = "800";
+      } else {
+        overWarnEl.textContent = "✔ 目前仍在建議攝取範圍內";
+        overWarnEl.style.color = "#7a8f4e";
+        overWarnEl.style.fontWeight = "800";
+      }
+    }
+
+    // 進頁先渲染一次
+    renderCalorieStatus();
+
     document.getElementById("btnAdd").addEventListener("click", () => {
       const f = food.value.trim();
       const c = cal.value;
@@ -62,11 +118,15 @@
       if (!f) { msg.textContent = "請輸入食物名稱"; return; }
       if (!c) { msg.textContent = "請輸入熱量"; return; }
 
+      // ✅ 仍可新增（就算超標也不擋）
       window.App.addLog(meal.value, f, c);
 
       msg.textContent = "✅ 已新增紀錄";
       food.value = "";
       cal.value = "";
+
+      // ✅ 新增後立刻更新今日熱量狀態（顯示是否超標）
+      renderCalorieStatus();
     });
   </script>
 </body>
