@@ -401,3 +401,9 @@ input[type="date"].input {
   height: 44px;
 }
 
+/* 隱藏「今日食物攝取細項」整塊卡片（用 h2 文字鎖定） */
+.panel:has(> h2)::before { content: ""; }
+
+.panel:has(> h2:contains("今日食物攝取細項")) {
+  display: none !important;
+}
