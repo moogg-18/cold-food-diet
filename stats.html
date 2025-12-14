@@ -49,7 +49,7 @@
       <p class="note" id="tip">—</p>
     </section>
 
-    <!-- ✅ 新增：今日食物攝取細項 -->
+    <!-- ✅ 今日食物攝取細項（含刪除） -->
     <section class="panel food-detail-panel">
       <h2>今日食物攝取細項</h2>
 
@@ -61,11 +61,12 @@
               <th>食物名稱</th>
               <th>熱量 (kcal)</th>
               <th>是否為冷性食物</th>
+              <th>操作</th>
             </tr>
           </thead>
           <tbody id="foodTableBody">
             <tr class="empty">
-              <td colspan="4">尚未新增任何食物紀錄</td>
+              <td colspan="5">尚未新增任何食物紀錄</td>
             </tr>
           </tbody>
         </table>
@@ -83,59 +84,60 @@
 
   <script src="app.js"></script>
   <script>
-    /* ===== 今日統計（你原本的邏輯，未動） ===== */
-    const s = window.App.getTodayStatus();
-
-    document.getElementById("total").textContent = s.total;
-    document.getElementById("cold").textContent = s.coldCount;
-    document.getElementById("tip").textContent = "💡 建議：" + s.tip;
-
+    const totalEl = document.getElementById("total");
+    const coldEl = document.getElementById("cold");
+    const tipEl = document.getElementById("tip");
     const limitEl = document.getElementById("limit");
     const statusTextEl = document.getElementById("statusText");
     const statusHintEl = document.getElementById("statusHint");
     const warnEl = document.getElementById("warn");
+    const tbody = document.getElementById("foodTableBody");
 
-    if (!s.limit) {
-      limitEl.textContent = "—";
-      statusTextEl.textContent = "未設定";
-      statusHintEl.textContent = "";
-      warnEl.textContent =
-        "請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。";
-      warnEl.style.color = "#4d3900";
-      warnEl.style.fontWeight = "600";
-    } else {
-      limitEl.textContent = s.limit;
+    function renderSummary() {
+      const s = window.App.getTodayStatus(); // 你原本的統計函式
+      totalEl.textContent = s.total;
+      coldEl.textContent = s.coldCount;
+      tipEl.textContent = "💡 建議：" + s.tip;
 
-      if (s.over) {
-        statusTextEl.textContent = "超標";
-        statusHintEl.textContent = `+${s.overBy} kcal`;
+      if (!s.limit) {
+        limitEl.textContent = "—";
+        statusTextEl.textContent = "未設定";
+        statusHintEl.textContent = "";
         warnEl.textContent =
-          `⚠ 今日熱量已超過建議攝取量（+${s.overBy} kcal），建議下餐降低油糖或增加蔬菜/蛋白質比例。`;
-        warnEl.style.color = "red";
-        warnEl.style.fontWeight = "800";
+          "請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。";
+        warnEl.style.color = "#4d3900";
+        warnEl.style.fontWeight = "600";
       } else {
-        statusTextEl.textContent = "正常";
-        statusHintEl.textContent = "在範圍內";
-        warnEl.textContent =
-          "✔ 目前仍在建議攝取範圍內，持續保持均衡飲食！";
-        warnEl.style.color = "#7a8f4e";
-        warnEl.style.fontWeight = "800";
+        limitEl.textContent = s.limit;
+
+        if (s.over) {
+          statusTextEl.textContent = "超標";
+          statusHintEl.textContent = `+${s.overBy} kcal`;
+          warnEl.textContent =
+            `⚠ 今日熱量已超過建議攝取量（+${s.overBy} kcal），建議下餐降低油糖或增加蔬菜/蛋白質比例。`;
+          warnEl.style.color = "red";
+          warnEl.style.fontWeight = "800";
+        } else {
+          statusTextEl.textContent = "正常";
+          statusHintEl.textContent = "在範圍內";
+          warnEl.textContent =
+            "✔ 目前仍在建議攝取範圍內，持續保持均衡飲食！";
+          warnEl.style.color = "#7a8f4e";
+          warnEl.style.fontWeight = "800";
+        }
       }
     }
 
-    /* ===== 今日食物攝取細項表格 ===== */
+    /* ====== 今日食物表格：讀取（保底） ====== */
     function getLogsByDateSafe(d) {
-      // 優先使用 app.js 提供的 API
       if (window.App && typeof window.App.getLogsByDate === "function") {
         return window.App.getLogsByDate(d) || [];
       }
 
-      // 保底：嘗試 localStorage
       const tryKeys = ["logs", "foodLogs", "mealLogs", "dietLogs"];
       for (const k of tryKeys) {
         const raw = localStorage.getItem(k);
         if (!raw) continue;
-
         try {
           const arr = JSON.parse(raw);
           if (Array.isArray(arr)) {
@@ -146,18 +148,141 @@
       return [];
     }
 
+    /* ====== 刪除（優先用 App，沒有就 localStorage 保底） ====== */
+    function deleteLogSafe(log) {
+      // 1) 若 app.js 有提供刪除 API：優先用
+      if (window.App && typeof window.App.deleteLog === "function") {
+        window.App.deleteLog(log);
+        return true;
+      }
+      if (window.App && typeof window.App.removeLog === "function") {
+        window.App.removeLog(log);
+        return true;
+      }
+
+      // 2) 保底：從 localStorage 常見 key 刪除「第一筆符合」的紀錄
+      const tryKeys = ["logs", "foodLogs", "mealLogs", "dietLogs"];
+      const d = log.date || log.d || log.day;
+
+      for (const k of tryKeys) {
+        const raw = localStorage.getItem(k);
+        if (!raw) continue;
+
+        try {
+          const arr = JSON.parse(raw);
+          if (!Array.isArray(arr)) continue;
+
+          const idx = arr.findIndex(x => {
+            const xd = x.date || x.d || x.day;
+
+            // 用「多欄位比對」避免刪錯：日期 + 餐別 + 名稱 + 熱量 + (可選) id/ts
+            const sameCore =
+              xd === d &&
+              (x.meal || x.type) === (log.meal || log.type) &&
+              (x.food || x.name) === (log.food || log.name) &&
+              String(x.cal || x.kcal || x.calories) === String(log.cal || log.kcal || log.calories);
+
+            const idKey = x.id || x.ts || x.time || x.createdAt;
+            const logIdKey = log.id || log.ts || log.time || log.createdAt;
+
+            // 若有 id/ts 就再加強比對
+            if (idKey != null && logIdKey != null) {
+              return sameCore && String(idKey) === String(logIdKey);
+            }
+            return sameCore;
+          });
+
+          if (idx >= 0) {
+            arr.splice(idx, 1);
+            localStorage.setItem(k, JSON.stringify(arr));
+            return true;
+          }
+        } catch (_) {}
+      }
+      return false;
+    }
+
+    function makeRowKey(item) {
+      // 用 id/ts 優先；沒有就用核心欄位拼 key
+      const d = item.date || item.d || item.day || "";
+      const m = item.meal || item.type || "";
+      const f = item.food || item.name || "";
+      const c = item.cal || item.kcal || item.calories || "";
+      const id = item.id || item.ts || item.time || item.createdAt || "";
+      return `${d}||${m}||${f}||${c}||${id}`;
+    }
+
     function renderFoodTableToday() {
       const today = window.App.todayISO();
-      const tbody = document.getElementById("foodTableBody");
       const logs = getLogsByDateSafe(today);
 
       if (!logs || logs.length === 0) {
         tbody.innerHTML = `
           <tr class="empty">
-            <td colspan="4">尚未新增任何食物紀錄</td>
+            <td colspan="5">尚未新增任何食物紀錄</td>
           </tr>`;
         return;
       }
 
       tbody.innerHTML = logs.map(item => {
-        con
+        const meal = item.meal || "—";
+        const food = item.food || item.name || "—";
+        const kcal = item.cal || item.kcal || item.calories || "—";
+        const cold =
+          item.isCold === true ? "是" :
+          item.isCold === false ? "否" :
+          "未判定";
+
+        const rowKey = makeRowKey(item);
+        // 把整個 item 壓成 data-json，刪除時取回來比對/刪除
+        const safeJson = encodeURIComponent(JSON.stringify(item));
+
+        return `
+          <tr>
+            <td>${meal}</td>
+            <td>${food}</td>
+            <td>${kcal}</td>
+            <td>${cold}</td>
+            <td>
+              <button class="btn btn-outline btn-del"
+                type="button"
+                data-rowkey="${rowKey}"
+                data-json="${safeJson}"
+              >刪除</button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // ✅ 事件委派：點刪除
+    tbody.addEventListener("click", (e) => {
+      const btn = e.target.closest(".btn-del");
+      if (!btn) return;
+
+      const ok = confirm("確定要刪除這筆紀錄嗎？");
+      if (!ok) return;
+
+      try {
+        const item = JSON.parse(decodeURIComponent(btn.dataset.json || ""));
+        const deleted = deleteLogSafe(item);
+
+        if (!deleted) {
+          alert("刪除失敗：找不到對應紀錄（可能 app.js 存的 key 不同）。");
+          return;
+        }
+
+        // ✅ 刪除後：同步刷新表格 + 今日摘要
+        renderFoodTableToday();
+        renderSummary();
+      } catch (err) {
+        alert("刪除失敗：資料格式錯誤");
+      }
+    });
+
+    // 初次進入頁面：渲染摘要 + 表格
+    renderSummary();
+    renderFoodTableToday();
+  </script>
+</body>
+</html>
