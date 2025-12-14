@@ -576,3 +576,50 @@ a.link {
   gap: 10px;
   min-width: 1100px;
 }
+
+/* ===== 週曆所有標題文字「強制置中」 ===== */
+
+/* 左上角「項目」 */
+.week-corner {
+  display: flex;
+  align-items: center;      /* 垂直置中 */
+  justify-content: center;  /* 水平置中 */
+  text-align: center;
+  font-weight: 800;
+}
+
+/* 上方欄位標題（早餐 / 中餐 / 晚餐 / 消夜 / 新增的） */
+.week-head {
+  display: flex;
+  flex-direction: column;  /* 日期＋文字也能一起置中 */
+  align-items: center;     /* 水平置中 */
+  justify-content: center; /* 垂直置中 */
+  text-align: center;
+}
+
+/* 欄位名稱文字本身 */
+.week-day {
+  text-align: center;
+  width: 100%;
+}
+
+/* 欄位日期（如果有） */
+.week-date {
+  text-align: center;
+  width: 100%;
+}
+
+/* 左側列標題（每一列的名稱） */
+.week-side,
+.week-side-editable {
+  display: flex;
+  align-items: center;     /* 垂直置中 */
+  justify-content: center; /* 水平置中 */
+  text-align: center;
+}
+
+/* 可編輯的列標題 input（避免文字偏左） */
+.week-row-title {
+  text-align: center;
+}
+
