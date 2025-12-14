@@ -377,3 +377,27 @@ a.link {
   color: #4d3900;
   font-weight: 900;
 }
+
+/* ===== 修正：個人設定頁 input/select 太高導致看起來超出 panel（只動表單） ===== */
+.input,
+select.input,
+input.input {
+  box-sizing: border-box;   /* ✅ 寬度包含 padding，不會撐爆 */
+  display: block;           /* ✅ 避免 inline 造成怪高度 */
+  width: 100%;
+  max-width: 100%;
+
+  /* 🔻縮小一點高度，避免把 panel 撐得像溢出 */
+  padding: 10px 14px;
+  height: 44px;
+  line-height: 1.2;
+
+  border-radius: 12px;      /* ✅ 保留你原本圓角風格 */
+}
+
+/* number/date 在某些瀏覽器會更高，這裡再保險一次 */
+input[type="number"].input,
+input[type="date"].input {
+  height: 44px;
+}
+
