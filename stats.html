@@ -4,8 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>今日統計與建議</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=130" />
 </head>
+
 <body>
   <header class="topbar">
     <h1>📊 今日統計與建議</h1>
@@ -15,18 +16,34 @@
   <main class="container">
     <section class="panel">
       <h2>今日摘要</h2>
+
       <div class="grid">
         <div class="metric">
           <div class="label">今日總熱量</div>
           <div class="value" id="total">0</div>
           <div class="hint">kcal</div>
         </div>
+
+        <div class="metric">
+          <div class="label">建議攝取量</div>
+          <div class="value" id="limit">—</div>
+          <div class="hint">kcal</div>
+        </div>
+
         <div class="metric">
           <div class="label">冷性食物次數</div>
           <div class="value" id="cold">0</div>
           <div class="hint">次</div>
         </div>
+
+        <div class="metric">
+          <div class="label">熱量狀態</div>
+          <div class="value" id="statusText">—</div>
+          <div class="hint" id="statusHint"></div>
+        </div>
       </div>
+
+      <p class="note" id="warn">—</p>
       <p class="note" id="tip">—</p>
     </section>
 
@@ -39,10 +56,41 @@
 
   <script src="app.js"></script>
   <script>
-    const s = window.App.getTodaySummary();
+    const s = window.App.getTodayStatus(); // ✅ 用含 limit/over 的版本
+
     document.getElementById("total").textContent = s.total;
     document.getElementById("cold").textContent = s.coldCount;
     document.getElementById("tip").textContent = "💡 建議：" + s.tip;
+
+    const limitEl = document.getElementById("limit");
+    const statusTextEl = document.getElementById("statusText");
+    const statusHintEl = document.getElementById("statusHint");
+    const warnEl = document.getElementById("warn");
+
+    if (!s.limit) {
+      limitEl.textContent = "—";
+      statusTextEl.textContent = "未設定";
+      statusHintEl.textContent = "";
+      warnEl.textContent = "請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。";
+      warnEl.style.color = "#4d3900";
+      warnEl.style.fontWeight = "600";
+    } else {
+      limitEl.textContent = s.limit;
+
+      if (s.over) {
+        statusTextEl.textContent = "超標";
+        statusHintEl.textContent = `+${s.overBy} kcal`;
+        warnEl.textContent = `⚠ 今日熱量已超過建議攝取量（+${s.overBy} kcal），建議下餐降低油糖或增加蔬菜/蛋白質比例。`;
+        warnEl.style.color = "red";
+        warnEl.style.fontWeight = "800";
+      } else {
+        statusTextEl.textContent = "正常";
+        statusHintEl.textContent = "在範圍內";
+        warnEl.textContent = "✔ 目前仍在建議攝取範圍內，持續保持均衡飲食！";
+        warnEl.style.color = "#7a8f4e";
+        warnEl.style.fontWeight = "800";
+      }
+    }
   </script>
 </body>
 </html>
