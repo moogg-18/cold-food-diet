@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>個人設定</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>👤 個人設定</h1>
+    <p class="sub"><a class="link" href="index.html">← 回首頁</a></p>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>基本資料</h2>
+
+      <label class="small">年齡</label>
+      <input id="age" class="input" type="number" placeholder="例：22" />
+
+      <div style="height:10px"></div>
+
+      <label class="small">性別</label>
+      <select id="sex" class="input">
+        <option value="female">女性</option>
+        <option value="male">男性</option>
+      </select>
+
+      <div style="height:10px"></div>
+
+      <label class="small">身高（cm）</label>
+      <input id="height" class="input" type="number" placeholder="例：160" />
+
+      <div style="height:10px"></div>
+
+      <label class="small">體重（kg）</label>
+      <input id="weight" class="input" type="number" placeholder="例：55" />
+
+      <div style="height:10px"></div>
+
+      <label class="small">目標</label>
+      <select id="goal" class="input">
+        <option value="lose">減脂</option>
+        <option value="maintain">維持</option>
+        <option value="gain">增肌</option>
+      </select>
+
+      <div style="height:10px"></div>
+
+      <label class="small">運動量</label>
+      <select id="activity" class="input">
+        <option value="daily">每天</option>
+        <option value="3-5">一週 3–5 次</option>
+        <option value="0-2">一週 0–2 次</option>
+      </select>
+
+      <div style="height:14px"></div>
+
+      <button class="btn" id="btnSave">儲存設定</button>
+      <p class="note" id="msg"></p>
+    </section>
+
+    <section class="panel">
+      <h2>說明</h2>
+      <ul class="list">
+        <li>系統會依據你的基本資料與運動量提供飲食建議。</li>
+        <li>資料僅儲存在你的瀏覽器（LocalStorage）。</li>
+        <li>老師透過網址使用時，不會看到你的個人資料。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const age = document.getElementById("age");
+    const sex = document.getElementById("sex");
+    const height = document.getElementById("height");
+    const weight = document.getElementById("weight");
+    const goal = document.getElementById("goal");
+    const activity = document.getElementById("activity");
+    const msg = document.getElementById("msg");
+
+    // 先讀取已存資料
+    const p = JSON.parse(localStorage.getItem("diet_profile_v1") || "{}");
+    age.value = p.age || "";
+    sex.value = p.sex || "female";
+    height.value = p.height || "";
+    weight.value = p.weight || "";
+    goal.value = p.goal || "maintain";
+    activity.value = p.activity || "3-5";
+
+    document.getElementById("btnSave").addEventListener("click", () => {
+      const profile = {
+        age: Number(age.value),
+        sex: sex.value,
+        height: Number(height.value),
+        weight: Number(weight.value),
+        goal: goal.value,
+        activity: activity.value
+      };
+      localStorage.setItem("diet_profile_v1", JSON.stringify(profile));
+      msg.textContent = "✅ 已儲存個人設定";
+    });
+  </script>
+</body>
+</html>
