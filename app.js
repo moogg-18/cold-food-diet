@@ -20,11 +20,8 @@
   }
 
   function loadLogs() {
-    try {
-      return JSON.parse(localStorage.getItem(LS_KEY_LOGS) || "[]");
-    } catch {
-      return [];
-    }
+    try { return JSON.parse(localStorage.getItem(LS_KEY_LOGS) || "[]"); }
+    catch { return []; }
   }
 
   function saveLogs(logs) {
@@ -32,11 +29,8 @@
   }
 
   function loadProfile() {
-    try {
-      return JSON.parse(localStorage.getItem(LS_KEY_PROFILE) || "{}");
-    } catch {
-      return {};
-    }
+    try { return JSON.parse(localStorage.getItem(LS_KEY_PROFILE) || "{}"); }
+    catch { return {}; }
   }
 
   function saveProfile(p) {
@@ -46,19 +40,18 @@
   function isColdFood(name) {
     if (!name) return false;
     if (ColdFoods.has(name)) return true;
-    // 簡易關鍵字判斷
     return name.includes("冰") || name.includes("生");
   }
 
   /* ========= 飲食紀錄 ========= */
-  // ✅ 新增：photo 參數（base64），供週曆相片紀錄使用
-  function addLog(meal, food, calories, photo = null) {
+  // ✅ 支援 photo + date
+  function addLog(meal, food, calories, photo = null, date = null) {
     const logs = loadLogs();
     logs.push({
       id: (typeof crypto !== "undefined" && crypto.randomUUID)
         ? crypto.randomUUID()
         : String(Date.now()) + "_" + Math.random().toString(16).slice(2),
-      date: todayISO(),
+      date: date || todayISO(),
       meal,
       food,
       calories: Number(calories) || 0,
@@ -73,9 +66,10 @@
     saveLogs(logs);
   }
 
-  /* ========= 今日統計 ========= */
-  function getTodaySummary() {
-    const logs = loadLogs().filter(l => l.date === todayISO());
+  /* ========= 依日期統計 ========= */
+  function getSummaryByDate(dateISO) {
+    const target = dateISO || todayISO();
+    const logs = loadLogs().filter(l => l.date === target);
 
     let total = 0;
     let coldCount = 0;
@@ -90,52 +84,45 @@
       tip = "尚未記錄飲食，請先新增三餐紀錄";
     } else {
       if (coldCount >= 3) tip = "冷性食物偏多，建議搭配溫熱性食物";
-      if (total > 2000) tip = "今日熱量偏高，注意飲食均衡";
+      if (total > 2000) tip = "熱量偏高，注意飲食均衡";
     }
 
-    return {
-      total,        // 👉 index.html / stats.html / log.html 用
-      coldCount,    // 👉 index.html / stats.html 用
-      tip,          // 👉 index.html / stats.html 用
-      logs          // 👉 week.html 之後會用（含 photo）
-    };
+    return { total, coldCount, tip, logs, date: target };
+  }
+
+  // ✅ 保留原本 API：今天摘要 = 依今天日期算
+  function getTodaySummary() {
+    return getSummaryByDate(todayISO());
   }
 
   /* ========= 每日建議熱量（TDEE） ========= */
   function getDailyCalorieLimit() {
     const p = loadProfile();
 
-    // 兼容不同欄位名稱（你 profile 用哪個都可以）
     const age = Number(p.age ?? p.Age ?? p.years ?? p.year) || 20;
 
-    // sex/gender 兼容：male/female、男/女、M/F
     const rawSex = (p.sex ?? p.gender ?? p.Gender ?? "female").toString().toLowerCase();
     const sex =
       rawSex.includes("男") || rawSex === "m" || rawSex.includes("male")
         ? "male"
         : "female";
 
-    const height = Number(p.height ?? p.Height ?? p.h) || 0; // cm
-    const weight = Number(p.weight ?? p.Weight ?? p.w) || 0; // kg
-
-    // 資料不足就回 null（前端顯示：請先填個人設定）
+    const height = Number(p.height ?? p.Height ?? p.h) || 0;
+    const weight = Number(p.weight ?? p.Weight ?? p.w) || 0;
     if (!height || !weight) return null;
 
-    // BMR: Mifflin-St Jeor
     const bmr =
       sex === "male"
         ? 10 * weight + 6.25 * height - 5 * age + 5
         : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    // 運動量係數（每天 / 一週3-5次 / 一週0-2次）
     const activity = (p.activity ?? p.exercise ?? p.workout ?? "0-2").toString();
-    let factor = 1.2; // 少（0–2次/週）
+    let factor = 1.2;
     if (activity.includes("每天") || activity.includes("daily")) factor = 1.75;
     else if (activity.includes("3-5") || activity.includes("3") || activity.includes("5")) factor = 1.55;
 
     let tdee = bmr * factor;
 
-    // 目標調整（維持/減脂/增肌）
     const goal = (p.goal ?? p.target ?? "maintain").toString().toLowerCase();
     if (goal.includes("lose") || goal.includes("減")) tdee -= 300;
     if (goal.includes("gain") || goal.includes("增")) tdee += 300;
@@ -143,27 +130,20 @@
     return Math.round(tdee);
   }
 
-  /* ========= 今日狀態（含超標資訊） ========= */
-  function getTodayStatus() {
-    const sum = getTodaySummary();         // { total, coldCount, tip, logs }
-    const limit = getDailyCalorieLimit();  // number | null
+  /* ========= 依日期狀態（含超標資訊） ========= */
+  function getStatusByDate(dateISO) {
+    const sum = getSummaryByDate(dateISO);
+    const limit = getDailyCalorieLimit();
 
-    if (!limit) {
-      return {
-        ...sum,
-        limit: null,
-        over: false,
-        overBy: 0
-      };
-    }
+    if (!limit) return { ...sum, limit: null, over: false, overBy: 0 };
 
     const overBy = Math.max(0, sum.total - limit);
-    return {
-      ...sum,
-      limit,
-      over: overBy > 0,
-      overBy
-    };
+    return { ...sum, limit, over: overBy > 0, overBy };
+  }
+
+  // ✅ 保留原本 API：今天狀態
+  function getTodayStatus() {
+    return getStatusByDate(todayISO());
   }
 
   /* ========= 對外 API ========= */
@@ -172,7 +152,9 @@
     addLog,
     removeLog,
 
-    // summary
+    // summary/status
+    getSummaryByDate,
+    getStatusByDate,
     getTodaySummary,
     getTodayStatus,
     getDailyCalorieLimit,
@@ -182,6 +164,7 @@
     saveProfile,
 
     // utils
-    isColdFood
+    isColdFood,
+    todayISO
   };
 })();
