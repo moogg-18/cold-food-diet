@@ -51,15 +51,19 @@
   }
 
   /* ========= 飲食紀錄 ========= */
-  function addLog(meal, food, calories) {
+  // ✅ 新增：photo 參數（base64），供週曆相片紀錄使用
+  function addLog(meal, food, calories, photo = null) {
     const logs = loadLogs();
     logs.push({
-      id: crypto.randomUUID(),
+      id: (typeof crypto !== "undefined" && crypto.randomUUID)
+        ? crypto.randomUUID()
+        : String(Date.now()) + "_" + Math.random().toString(16).slice(2),
       date: todayISO(),
       meal,
       food,
       calories: Number(calories) || 0,
-      cold: isColdFood(food)
+      cold: isColdFood(food),
+      photo // base64 或 null
     });
     saveLogs(logs);
   }
@@ -77,30 +81,27 @@
     let coldCount = 0;
 
     logs.forEach(l => {
-      total += l.calories;
+      total += Number(l.calories) || 0;
       if (l.cold) coldCount++;
     });
 
     let tip = "飲食狀況良好";
-    if (coldCount >= 3) {
-      tip = "冷性食物偏多，建議搭配溫熱性食物";
-    }
-    if (total > 2000) {
-      tip = "今日熱量偏高，注意飲食均衡";
-    }
     if (logs.length === 0) {
       tip = "尚未記錄飲食，請先新增三餐紀錄";
+    } else {
+      if (coldCount >= 3) tip = "冷性食物偏多，建議搭配溫熱性食物";
+      if (total > 2000) tip = "今日熱量偏高，注意飲食均衡";
     }
 
     return {
-      total,        // 👉 index.html / stats.html 用
+      total,        // 👉 index.html / stats.html / log.html 用
       coldCount,    // 👉 index.html / stats.html 用
       tip,          // 👉 index.html / stats.html 用
-      logs          // 👉 其他頁面可用
+      logs          // 👉 week.html 之後會用（含 photo）
     };
   }
 
-  /* ========= 新增：每日建議熱量（TDEE） ========= */
+  /* ========= 每日建議熱量（TDEE） ========= */
   function getDailyCalorieLimit() {
     const p = loadProfile();
 
@@ -126,26 +127,26 @@
         ? 10 * weight + 6.25 * height - 5 * age + 5
         : 10 * weight + 6.25 * height - 5 * age - 161;
 
-    // 運動量係數（你前面有：每天 / 一周3~5次 / 一周0~2次）
-    const activity = (p.activity ?? p.exercise ?? p.workout ?? "一周0~2次").toString();
-    let factor = 1.2;  // 少（0–2次/週）
+    // 運動量係數（每天 / 一週3-5次 / 一週0-2次）
+    const activity = (p.activity ?? p.exercise ?? p.workout ?? "0-2").toString();
+    let factor = 1.2; // 少（0–2次/週）
     if (activity.includes("每天") || activity.includes("daily")) factor = 1.75;
-    else if (activity.includes("3") || activity.includes("5")) factor = 1.55;
+    else if (activity.includes("3-5") || activity.includes("3") || activity.includes("5")) factor = 1.55;
 
     let tdee = bmr * factor;
 
     // 目標調整（維持/減脂/增肌）
-    const goal = (p.goal ?? p.target ?? "維持").toString();
-    if (goal.includes("減") || goal.includes("減脂") || goal.toLowerCase().includes("cut")) tdee -= 300;
-    if (goal.includes("增") || goal.includes("增肌") || goal.toLowerCase().includes("bulk")) tdee += 300;
+    const goal = (p.goal ?? p.target ?? "maintain").toString().toLowerCase();
+    if (goal.includes("lose") || goal.includes("減")) tdee -= 300;
+    if (goal.includes("gain") || goal.includes("增")) tdee += 300;
 
     return Math.round(tdee);
   }
 
-  /* ========= 新增：今日狀態（含超標資訊） ========= */
+  /* ========= 今日狀態（含超標資訊） ========= */
   function getTodayStatus() {
-    const sum = getTodaySummary();       // { total, coldCount, tip, logs }
-    const limit = getDailyCalorieLimit(); // number | null
+    const sum = getTodaySummary();         // { total, coldCount, tip, logs }
+    const limit = getDailyCalorieLimit();  // number | null
 
     if (!limit) {
       return {
@@ -173,8 +174,8 @@
 
     // summary
     getTodaySummary,
-    getTodayStatus,          // ✅ 新增
-    getDailyCalorieLimit,    // ✅ 新增
+    getTodayStatus,
+    getDailyCalorieLimit,
 
     // profile
     loadProfile,
