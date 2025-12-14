@@ -41,13 +41,16 @@ body {
 .topbar {
   padding: 22px 16px 12px;
 
-  /* 關鍵：背景完全不可見 */
-  background-color: rgba(255, 255, 255, 0); /* 透明度 0% */
-  
-  /* 確保沒有模糊或殘影 */
+  /* 白色實心背景 */
+  background-color: #ffffff;
+
+  /* 移除玻璃效果 */
   backdrop-filter: none;
-  border: none;
+
+  /* 底線可留可不留（留一點質感） */
+  border-bottom: 1px solid rgba(77, 57, 0, 0.15);
 }
+
 
 
 h1 {
