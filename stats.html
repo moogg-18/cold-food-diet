@@ -14,6 +14,8 @@
   </header>
 
   <main class="container">
+
+    <!-- 今日摘要 -->
     <section class="panel">
       <h2>今日摘要</h2>
 
@@ -47,16 +49,42 @@
       <p class="note" id="tip">—</p>
     </section>
 
+    <!-- ✅ 新增：今日食物攝取細項 -->
+    <section class="panel food-detail-panel">
+      <h2>今日食物攝取細項</h2>
+
+      <div class="table-wrapper">
+        <table class="food-table">
+          <thead>
+            <tr>
+              <th>餐別</th>
+              <th>食物名稱</th>
+              <th>熱量 (kcal)</th>
+              <th>是否為冷性食物</th>
+            </tr>
+          </thead>
+          <tbody id="foodTableBody">
+            <tr class="empty">
+              <td colspan="4">尚未新增任何食物紀錄</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 快捷入口 -->
     <section class="panel">
       <h2>快捷入口</h2>
       <a class="card" href="log.html">🍱 繼續新增三餐紀錄</a>
       <a class="card" href="profile.html">👤 個人設定</a>
     </section>
+
   </main>
 
   <script src="app.js"></script>
   <script>
-    const s = window.App.getTodayStatus(); // ✅ 用含 limit/over 的版本
+    /* ===== 今日統計（你原本的邏輯，未動） ===== */
+    const s = window.App.getTodayStatus();
 
     document.getElementById("total").textContent = s.total;
     document.getElementById("cold").textContent = s.coldCount;
@@ -71,7 +99,8 @@
       limitEl.textContent = "—";
       statusTextEl.textContent = "未設定";
       statusHintEl.textContent = "";
-      warnEl.textContent = "請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。";
+      warnEl.textContent =
+        "請先到「個人設定」填寫身高、體重、年齡、性別與運動量，系統才能計算建議熱量。";
       warnEl.style.color = "#4d3900";
       warnEl.style.fontWeight = "600";
     } else {
@@ -80,17 +109,55 @@
       if (s.over) {
         statusTextEl.textContent = "超標";
         statusHintEl.textContent = `+${s.overBy} kcal`;
-        warnEl.textContent = `⚠ 今日熱量已超過建議攝取量（+${s.overBy} kcal），建議下餐降低油糖或增加蔬菜/蛋白質比例。`;
+        warnEl.textContent =
+          `⚠ 今日熱量已超過建議攝取量（+${s.overBy} kcal），建議下餐降低油糖或增加蔬菜/蛋白質比例。`;
         warnEl.style.color = "red";
         warnEl.style.fontWeight = "800";
       } else {
         statusTextEl.textContent = "正常";
         statusHintEl.textContent = "在範圍內";
-        warnEl.textContent = "✔ 目前仍在建議攝取範圍內，持續保持均衡飲食！";
+        warnEl.textContent =
+          "✔ 目前仍在建議攝取範圍內，持續保持均衡飲食！";
         warnEl.style.color = "#7a8f4e";
         warnEl.style.fontWeight = "800";
       }
     }
-  </script>
-</body>
-</html>
+
+    /* ===== 今日食物攝取細項表格 ===== */
+    function getLogsByDateSafe(d) {
+      // 優先使用 app.js 提供的 API
+      if (window.App && typeof window.App.getLogsByDate === "function") {
+        return window.App.getLogsByDate(d) || [];
+      }
+
+      // 保底：嘗試 localStorage
+      const tryKeys = ["logs", "foodLogs", "mealLogs", "dietLogs"];
+      for (const k of tryKeys) {
+        const raw = localStorage.getItem(k);
+        if (!raw) continue;
+
+        try {
+          const arr = JSON.parse(raw);
+          if (Array.isArray(arr)) {
+            return arr.filter(x => (x.date || x.d || x.day) === d);
+          }
+        } catch (_) {}
+      }
+      return [];
+    }
+
+    function renderFoodTableToday() {
+      const today = window.App.todayISO();
+      const tbody = document.getElementById("foodTableBody");
+      const logs = getLogsByDateSafe(today);
+
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = `
+          <tr class="empty">
+            <td colspan="4">尚未新增任何食物紀錄</td>
+          </tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(item => {
+        con
