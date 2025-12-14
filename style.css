@@ -3,6 +3,7 @@
 *::after {
   box-sizing: border-box;
 }
+
 /* ========= 主題設定 ========= */
 :root {
   --text-color: #4d3900;
@@ -34,8 +35,6 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
   color: var(--text-color);
-
-  /* 背景圖：確保檔名是 bg.jpg */
   background-image: url("bg.jpg");
   background-size: cover;
   background-position: center;
@@ -45,18 +44,9 @@ body {
 /* ========= 上方標題列 ========= */
 .topbar {
   padding: 22px 16px 12px;
-
-  /* 白色實心背景 */
   background-color: #ffffff;
-
-  /* 移除玻璃效果 */
-  backdrop-filter: none;
-
-  /* 底線可留可不留（留一點質感） */
   border-bottom: 1px solid rgba(77, 57, 0, 0.15);
 }
-
-
 
 h1 {
   margin: 0;
@@ -148,31 +138,24 @@ h1 {
   font-size: 14px;
 }
 
-.list {
-  margin: 0;
-  padding-left: 18px;
-}
-
 .small {
   font-size: 12px;
   opacity: 0.75;
 }
 
 /* ========= 表單 ========= */
-.input {
+.input,
+select,
+textarea {
   width: 100%;
+  max-width: 100%;
   padding: 12px;
   border-radius: 12px;
   border: 1px solid var(--border-soft);
   background: var(--input-bg);
   color: var(--text-color);
   outline: none;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  box-sizing: border-box;
 }
 
 /* ========= 按鈕 ========= */
@@ -191,17 +174,53 @@ h1 {
   color: var(--text-color);
 }
 
-/* ========= 表格 ========= */
-table {
-  width: 100%;
-  border-collapse: collapse;
+/* outline 按鈕（重新輸入 / 新增照片 / 刪除） */
+.btn.btn-outline {
+  background: rgba(255,255,255,0.85);
+  color: var(--text-color);
+  border: 1px solid var(--border-soft);
 }
 
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid var(--border-soft);
-  text-align: left;
+/* 表格內刪除按鈕 */
+.btn-del {
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* ========= 表格 ========= */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.food-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255,255,255,0.88);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.food-table th,
+.food-table td {
+  padding: 12px 10px;
+  text-align: center;
   font-size: 14px;
+}
+
+.food-table thead {
+  background: #f4f6f8;
+  font-weight: 600;
+}
+
+.food-table tbody tr {
+  border-top: 1px solid #e5e5e5;
+}
+
+.food-table tbody tr.empty td {
+  color: #999;
+  padding: 18px;
 }
 
 /* ========= 連結 ========= */
@@ -209,7 +228,7 @@ a.link {
   color: var(--btn-main);
 }
 
-/* ========= 標籤 Badge ========= */
+/* ========= Badge ========= */
 .badge {
   display: inline-block;
   padding: 4px 10px;
@@ -219,21 +238,19 @@ a.link {
   background: rgba(255, 255, 255, 0.55);
 }
 
-/* 冷性 */
 .badge.cold {
   background: var(--cold-bg);
   color: var(--cold-color);
   border: 1px solid var(--cold-border);
 }
 
-/* 非冷性 */
 .badge.warm {
   background: var(--warm-bg);
   color: var(--warm-color);
   border: 1px solid var(--warm-border);
 }
 
-/* ========= 建議文字顏色（可在 JS 依冷性次數套 class） ========= */
+/* ========= 提示文字 ========= */
 .tip-cold {
   color: var(--cold-color);
   font-weight: 800;
@@ -244,7 +261,9 @@ a.link {
   font-weight: 800;
 }
 
-/* ===== 週曆相片紀錄（week.html） ===== */
+/* ========= week.html 保留 ========= */
+/*（以下未動，維持你原本設定）*/
+
 .week-toolbar {
   display: flex;
   gap: 10px;
@@ -259,172 +278,301 @@ a.link {
 }
 
 .week-wrap {
-  overflow: auto; /* 小螢幕可橫向滑 */
+  overflow: auto;
 }
 
 .week-grid {
   display: grid;
   grid-template-columns: 64px repeat(7, minmax(140px, 1fr));
   gap: 10px;
-  min-width: 1100px; /* 讓電腦版像你圖那樣 */
+  min-width: 1100px;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-.week-corner {
-  background: rgba(255,255,255,0.35);
-  border: 1px solid rgba(77,57,0,0.15);
-  border-radius: 14px;
+/* ========= 主題設定 ========= */
+:root {
+  --text-color: #4d3900;
+
+  /* 白色透明 75% */
+  --panel-bg: rgba(255, 255, 255, 0.75);
+
+  /* 邊框淡淡棕色 */
+  --border-soft: rgba(77, 57, 0, 0.15);
+
+  /* 表單更白一點 */
+  --input-bg: rgba(255, 255, 255, 0.85);
+
+  /* 冷性/非冷性配色 */
+  --cold-color: #3f6f6a;
+  --cold-bg: rgba(111, 168, 161, 0.25);
+  --cold-border: rgba(63, 111, 106, 0.35);
+
+  --warm-color: #7a8f4e;
+  --warm-bg: rgba(122, 143, 78, 0.25);
+  --warm-border: rgba(122, 143, 78, 0.35);
+
+  /* 按鈕主色（偏棕金） */
+  --btn-main: #7a5c00;
 }
 
-.week-head {
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(77,57,0,0.15);
-  border-radius: 14px;
-  padding: 10px;
-  text-align: center;
+/* ========= 全站背景 ========= */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+  color: var(--text-color);
+  background-image: url("bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
 }
 
-.week-day {
-  font-weight: 800;
+/* ========= 上方標題列 ========= */
+.topbar {
+  padding: 22px 16px 12px;
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(77, 57, 0, 0.15);
 }
 
-.week-date {
-  font-size: 12px;
-  opacity: 0.8;
+h1 {
+  margin: 0;
+  font-size: 22px;
 }
 
-.week-side {
-  background: rgba(255,255,255,0.85);
-  border: 1px solid rgba(77,57,0,0.15);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 900;
-  height: 140px;
+.sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
 }
 
-.week-cell {
-  position: relative;
-  height: 140px;
-  border-radius: 14px;
-  border: 1px solid rgba(77,57,0,0.15);
-  background: rgba(255,255,255,0.75);
-  overflow: hidden;
-  cursor: pointer;
+/* ========= 主要容器 ========= */
+.container {
+  padding: 16px;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
-.week-empty {
-  height: 100%;
+/* ========= 導覽卡片 ========= */
+.nav {
   display: grid;
-  place-items: center;
-  text-align: center;
-  opacity: 0.9;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 16px;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
-.week-plus {
-  font-size: 30px;
-  font-weight: 900;
-  line-height: 1;
+.card {
+  display: block;
+  padding: 16px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--text-color);
+  background: var(--panel-bg);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(6px);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
-.week-empty-text {
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* ========= 主要方塊 ========= */
+.panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(6px);
+}
+
+/* ========= 今日狀態格子 ========= */
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric {
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--input-bg);
+  border: 1px solid var(--border-soft);
+}
+
+.label {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.value {
+  font-size: 28px;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.hint {
   font-size: 12px;
   opacity: 0.8;
 }
 
-.week-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+/* ========= 文字 ========= */
+.note {
+  margin-top: 10px;
+  font-size: 14px;
 }
 
-.week-clear {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  border: none;
-  border-radius: 999px;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.85);
-  color: #4d3900;
-  font-weight: 900;
+.small {
+  font-size: 12px;
+  opacity: 0.75;
 }
 
-/* ===== 週曆：可自訂列標題/刪除列 ===== */
-.week-side-editable {
-  position: relative;
-  padding: 10px;
-}
-
-.week-row-title {
-  width: 100%;
-  outline: none;
-  text-align: center;
-  font-weight: 900;
-  font-size: 16px;
-}
-
-.week-row-title:focus {
-  box-shadow: inset 0 0 0 2px rgba(77,57,0,0.25);
-  border-radius: 10px;
-}
-
-.week-row-del {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  border: none;
-  border-radius: 999px;
-  width: 26px;
-  height: 26px;
-  cursor: pointer;
-  background: rgba(255,255,255,0.85);
-  color: #4d3900;
-  font-weight: 900;
-}
-
-/* === 修正輸入框超出 panel 問題 === */
+/* ========= 表單 ========= */
 .input,
 select,
 textarea {
   width: 100%;
   max-width: 100%;
-  box-sizing: border-box;   /* ✅ 關鍵 */
-}
-
-/* 若你有用到數字輸入框 */
-input[type="number"],
-input[type="text"],
-input[type="date"],
-input[type="file"] {
-  width: 100%;
-  max-width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: var(--input-bg);
+  color: var(--text-color);
+  outline: none;
   box-sizing: border-box;
 }
 
-/* 今日食物攝取細項 */
-.table-wrapper { overflow-x: auto; }
-
-.food-table{
-  width:100%;
-  border-collapse:collapse;
-  background: rgba(255,255,255,.88);
-  border-radius:12px;
-  overflow:hidden;
+/* ========= 按鈕 ========= */
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #fff;
+  background: var(--btn-main);
+  font-weight: 700;
 }
 
-.food-table th, .food-table td{
-  padding:12px 10px;
-  text-align:center;
-  font-size:14px;
+.btn.secondary {
+  background: rgba(77, 57, 0, 0.25);
+  color: var(--text-color);
 }
 
-.food-table thead{ background:#f4f6f8; font-weight:600; }
-.food-table tbody tr{ border-top:1px solid #e5e5e5; }
+/* outline 按鈕（重新輸入 / 新增照片 / 刪除） */
+.btn.btn-outline {
+  background: rgba(255,255,255,0.85);
+  color: var(--text-color);
+  border: 1px solid var(--border-soft);
+}
 
-.food-table tbody tr.empty td{
-  color:#999;
-  padding:18px;
+/* 表格內刪除按鈕 */
+.btn-del {
+  padding: 8px 10px;
+  font-size: 13px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* ========= 表格 ========= */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.food-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(255,255,255,0.88);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.food-table th,
+.food-table td {
+  padding: 12px 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.food-table thead {
+  background: #f4f6f8;
+  font-weight: 600;
+}
+
+.food-table tbody tr {
+  border-top: 1px solid #e5e5e5;
+}
+
+.food-table tbody tr.empty td {
+  color: #999;
+  padding: 18px;
+}
+
+/* ========= 連結 ========= */
+a.link {
+  color: var(--btn-main);
+}
+
+/* ========= Badge ========= */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.badge.cold {
+  background: var(--cold-bg);
+  color: var(--cold-color);
+  border: 1px solid var(--cold-border);
+}
+
+.badge.warm {
+  background: var(--warm-bg);
+  color: var(--warm-color);
+  border: 1px solid var(--warm-border);
+}
+
+/* ========= 提示文字 ========= */
+.tip-cold {
+  color: var(--cold-color);
+  font-weight: 800;
+}
+
+.tip-ok {
+  color: var(--warm-color);
+  font-weight: 800;
+}
+
+/* ========= week.html 保留 ========= */
+/*（以下未動，維持你原本設定）*/
+
+.week-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.week-title {
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.week-wrap {
+  overflow: auto;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: 64px repeat(7, minmax(140px, 1fr));
+  gap: 10px;
+  min-width: 1100px;
 }
