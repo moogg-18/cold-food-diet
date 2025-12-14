@@ -403,3 +403,28 @@ input[type="file"] {
   max-width: 100%;
   box-sizing: border-box;
 }
+
+/* 今日食物攝取細項 */
+.table-wrapper { overflow-x: auto; }
+
+.food-table{
+  width:100%;
+  border-collapse:collapse;
+  background: rgba(255,255,255,.88);
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.food-table th, .food-table td{
+  padding:12px 10px;
+  text-align:center;
+  font-size:14px;
+}
+
+.food-table thead{ background:#f4f6f8; font-weight:600; }
+.food-table tbody tr{ border-top:1px solid #e5e5e5; }
+
+.food-table tbody tr.empty td{
+  color:#999;
+  padding:18px;
+}
