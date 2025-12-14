@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>今日統計與建議</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>📊 今日統計與建議</h1>
+    <p class="sub"><a class="link" href="index.html">← 回首頁</a></p>
+  </header>
+
+  <main class="container">
+    <section class="panel">
+      <h2>今日摘要</h2>
+      <div class="grid">
+        <div class="metric">
+          <div class="label">今日總熱量</div>
+          <div class="value" id="total">0</div>
+          <div class="hint">kcal</div>
+        </div>
+        <div class="metric">
+          <div class="label">冷性食物次數</div>
+          <div class="value" id="cold">0</div>
+          <div class="hint">次</div>
+        </div>
+      </div>
+      <p class="note" id="tip">—</p>
+    </section>
+
+    <section class="panel">
+      <h2>快捷入口</h2>
+      <a class="card" href="log.html">🍱 繼續新增三餐紀錄</a>
+      <a class="card" href="profile.html">👤 個人設定</a>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+  <script>
+    const s = window.App.getTodaySummary();
+    document.getElementById("total").textContent = s.total;
+    document.getElementById("cold").textContent = s.coldCount;
+    document.getElementById("tip").textContent = "💡 建議：" + s.tip;
+  </script>
+</body>
+</html>
