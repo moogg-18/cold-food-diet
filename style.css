@@ -1,28 +1,164 @@
-:root { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif; }
-body { margin: 0; background: #0b0b0f; color: #fff; }
-.topbar { padding: 22px 16px 12px; border-bottom: 1px solid rgba(255,255,255,.08); }
-h1 { margin: 0; font-size: 22px; }
-.sub { margin: 6px 0 0; opacity: .8; font-size: 13px; }
-.container { padding: 16px; max-width: 980px; margin: 0 auto; }
-.nav { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); padding: 16px; max-width: 980px; margin: 0 auto; }
-.card { display:block; padding: 16px; border-radius: 16px; text-decoration: none; color: #fff; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); }
-.card:hover { background: rgba(255,255,255,.10); }
-.panel { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); border-radius: 18px; padding: 16px; margin-bottom: 14px; }
-.grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
-.metric { padding: 14px; border-radius: 14px; background: rgba(0,0,0,.25); border: 1px solid rgba(255,255,255,.08); }
-.label { opacity: .75; font-size: 13px; }
-.value { font-size: 28px; margin-top: 6px; font-weight: 700; }
-.hint { opacity: .7; font-size: 12px; }
-.note { margin: 10px 0 0; opacity: .85; }
-.list { margin: 0; padding-left: 18px; opacity: .9; }
-.input { width: 100%; padding: 12px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.35); color: #fff; }
-.row { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn { cursor:pointer; border: 0; border-radius: 14px; padding: 12px 14px; color:#fff; background: #2563eb; font-weight: 700; }
-.btn.secondary { background: rgba(255,255,255,.10); }
-.small { font-size: 12px; opacity: .75; }
-.badge { display:inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; border:1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.25); }
-.badge.cold { border-color: rgba(56,189,248,.45); }
-.badge.warm { border-color: rgba(251,146,60,.45); }
-table { width: 100%; border-collapse: collapse; }
-th, td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,.08); text-align: left; font-size: 14px; }
-a.link { color: #93c5fd; }
+/* ===== 全域色彩設定 ===== */
+:root {
+  --text-color: #4d3900;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --border-soft: rgba(77, 57, 0, 0.15);
+}
+
+/* ===== 全站背景 ===== */
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+  color: var(--text-color);
+
+  /* 背景圖 */
+  background-image: url("bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* ===== 上方標題列 ===== */
+.topbar {
+  padding: 22px 16px 12px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.sub {
+  margin: 6px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+/* ===== 主要容器 ===== */
+.container {
+  padding: 16px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+/* ===== 導覽卡片 ===== */
+.nav {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 16px;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.card {
+  display: block;
+  padding: 16px;
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--text-color);
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(6px);
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== 主要區塊（你說的方塊） ===== */
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== 今日狀態格子 ===== */
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border-soft);
+}
+
+.label {
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.value {
+  font-size: 28px;
+  margin-top: 6px;
+  font-weight: 700;
+}
+
+.hint {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ===== 文字 ===== */
+.note {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* ===== 表單 ===== */
+.input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-color);
+}
+
+.btn {
+  cursor: pointer;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: #fff;
+  background: #7a5c00;
+  font-weight: 700;
+}
+
+.btn.secondary {
+  background: rgba(77, 57, 0, 0.25);
+  color: var(--text-color);
+}
+
+/* ===== 表格 ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  font-size: 14px;
+}
+
+/* ===== 連結 ===== */
+a.link {
+  color: #7a5c00;
+}
