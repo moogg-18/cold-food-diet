@@ -1,293 +1,164 @@
-/* =========================
-   Global Reset & Base
-   ========================= */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/* ===== 全域色彩設定 ===== */
+:root {
+  --text-color: #4d3900;
+  --card-bg: rgba(255, 255, 255, 0.75);
+  --border-soft: rgba(77, 57, 0, 0.15);
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
-  color: #4d3900;
-  min-height: 100%;
-}
-
-/* =========================
-   Background
-   ========================= */
+/* ===== 全站背景 ===== */
 body {
-  background-image: url("background.jpg"); /* ← 你的食物圖 */
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+  color: var(--text-color);
+
+  /* 背景圖 */
+  background-image: url("bg.jpg");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
 }
 
-/* =========================
-   Layout Containers
-   ========================= */
-.container {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 18px 16px 40px;
-}
-
-/* =========================
-   Header
-   ========================= */
+/* ===== 上方標題列 ===== */
 .topbar {
-  background: white;
-  padding: 14px 18px;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  padding: 22px 16px 12px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--border-soft);
 }
 
-.topbar h1 {
+h1 {
   margin: 0;
   font-size: 22px;
-  font-weight: 900;
 }
 
 .sub {
-  margin-top: 4px;
-  font-size: 14px;
+  margin: 6px 0 0;
+  font-size: 13px;
+  opacity: 0.85;
 }
 
-.link {
-  text-decoration: none;
-  color: #4d3900;
-  font-weight: 700;
+/* ===== 主要容器 ===== */
+.container {
+  padding: 16px;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
-/* =========================
-   Panels / Cards
-   ========================= */
-.panel {
-  background: rgba(255,255,255,0.75);
-  border-radius: 18px;
-  padding: 18px;
-  margin-bottom: 18px;
-  box-shadow: 0 10px 26px rgba(0,0,0,0.12);
+/* ===== 導覽卡片 ===== */
+.nav {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  padding: 16px;
+  max-width: 980px;
+  margin: 0 auto;
 }
 
 .card {
   display: block;
-  padding: 14px 16px;
-  margin-bottom: 10px;
-  border-radius: 14px;
-  background: rgba(255,255,255,0.75);
+  padding: 16px;
+  border-radius: 16px;
   text-decoration: none;
-  color: #4d3900;
-  font-weight: 800;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  color: var(--text-color);
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(6px);
 }
 
-/* =========================
-   Navigation
-   ========================= */
-.nav {
+.card:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== 主要區塊（你說的方塊） ===== */
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 14px;
+  backdrop-filter: blur(6px);
+}
+
+/* ===== 今日狀態格子 ===== */
+.grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
-  margin-bottom: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-/* =========================
-   Typography Helpers
-   ========================= */
-h2 {
-  margin-top: 0;
-  font-size: 18px;
-  font-weight: 900;
+.metric {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border-soft);
 }
 
-.small {
+.label {
   font-size: 13px;
+  opacity: 0.85;
+}
+
+.value {
+  font-size: 28px;
+  margin-top: 6px;
   font-weight: 700;
 }
 
+.hint {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ===== 文字 ===== */
 .note {
   margin-top: 10px;
   font-size: 14px;
 }
 
-/* =========================
-   Inputs
-   ========================= */
-.input,
-select,
-textarea,
-input[type="text"],
-input[type="number"],
-input[type="date"] {
+.list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+/* ===== 表單 ===== */
+.input {
   width: 100%;
-  padding: 12px 14px;
+  padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(77,57,0,0.25);
-  font-size: 15px;
-  background: rgba(255,255,255,0.9);
-  color: #4d3900;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--text-color);
 }
 
-/* =========================
-   Buttons
-   ========================= */
 .btn {
-  padding: 10px 18px;
-  border-radius: 999px;
-  border: none;
   cursor: pointer;
-  background: #b39b4e;
-  color: white;
-  font-weight: 900;
-}
-
-.btn.secondary,
-.btn-outline {
-  background: rgba(255,255,255,0.85);
-  color: #4d3900;
-  border: 1px solid rgba(77,57,0,0.35);
-}
-
-/* =========================
-   Grid Metrics (首頁/統計)
-   ========================= */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-}
-
-.metric {
-  background: rgba(255,255,255,0.8);
+  border: none;
   border-radius: 14px;
-  padding: 14px;
-  text-align: center;
+  padding: 12px 14px;
+  color: #fff;
+  background: #7a5c00;
+  font-weight: 700;
 }
 
-.metric .label {
-  font-size: 14px;
-  font-weight: 800;
+.btn.secondary {
+  background: rgba(77, 57, 0, 0.25);
+  color: var(--text-color);
 }
 
-.metric .value {
-  font-size: 28px;
-  font-weight: 900;
-  margin: 6px 0;
-}
-
-.metric .hint {
-  font-size: 13px;
-}
-
-/* =========================
-   Week Calendar (Table-like)
-   ========================= */
-.week-wrap {
-  padding: 16px;
-}
-
-.week-toolbar {
-  display: flex;
-  gap: 12px;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.week-title {
-  font-weight: 900;
-}
-
-.week-grid {
-  display: grid;
-  grid-template-columns: 86px repeat(7, minmax(120px, 1fr));
-  gap: 14px;
+/* ===== 表格 ===== */
+table {
   width: 100%;
-  overflow-x: auto;
-  padding: 6px;
+  border-collapse: collapse;
 }
 
-.week-cell {
-  background: rgba(255,255,255,0.75);
-  border-radius: 14px;
-  border: 1px solid rgba(77,57,0,0.2);
-  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
-  color: #4d3900;
-}
-
-.week-header-cell {
+th, td {
   padding: 10px;
-  text-align: center;
-  font-weight: 900;
+  border-bottom: 1px solid var(--border-soft);
+  text-align: left;
+  font-size: 14px;
 }
 
-.week-title-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
-  letter-spacing: 2px;
-  font-weight: 900;
-}
-
-.photo-cell {
-  min-height: 120px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.photo-cell:empty {
-  font-size: 28px;
-  font-weight: 900;
-  opacity: 0.6;
-}
-
-.photo-cell img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 14px;
-}
-
-.photo-cell .badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  background: rgba(255,255,255,0.85);
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.photo-cell .clear-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  border: none;
-  background: rgba(255,255,255,0.85);
-  color: #4d3900;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-/* =========================
-   Responsive
-   ========================= */
-@media (max-width: 900px) {
-  .week-grid {
-    grid-template-columns: 72px repeat(7, 140px);
-  }
+/* ===== 連結 ===== */
+a.link {
+  color: #7a5c00;
 }
